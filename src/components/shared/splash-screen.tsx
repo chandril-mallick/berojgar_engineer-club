@@ -55,29 +55,20 @@ export function SplashScreen() {
 
           {/* Centered Branded Logo & Loading Progress */}
           <div className="relative z-10 flex flex-col items-center text-center space-y-5">
-            {/* Pulsing Logo Container */}
-            <div className="relative">
-              {/* Outer Glowing Gradient Ring */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                className="absolute -inset-2.5 rounded-full bg-gradient-to-tr from-amber-400 via-pink-500 to-amber-300 opacity-75 blur-[2px]"
+            {/* Frameless Logo Container */}
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: [0.95, 1.05, 1], opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="relative h-24 w-auto flex items-center justify-center"
+            >
+              {/* eslint-disable-next-next/no-img-element */}
+              <img
+                src="/berojgar-logo.png"
+                alt="Berojgar Engineer Club Logo"
+                className="h-24 w-auto object-contain"
               />
-
-              <motion.div
-                initial={{ scale: 0.85, opacity: 0 }}
-                animate={{ scale: [0.95, 1.05, 1], opacity: 1 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-white bg-white p-1 shadow-2xl"
-              >
-                {/* eslint-disable-next-next/no-img-element */}
-                <img
-                  src="/berojgar-logo.png"
-                  alt="Berojgar Engineer Logo"
-                  className="w-full h-full object-contain"
-                />
-              </motion.div>
-            </div>
+            </motion.div>
 
             {/* Brand Title & Subtitle */}
             <motion.div

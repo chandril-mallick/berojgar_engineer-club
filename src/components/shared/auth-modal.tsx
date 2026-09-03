@@ -145,11 +145,11 @@ export function AuthModal() {
 
           {/* Header Banner */}
           <div className="text-center space-y-1">
-            <div className="relative inline-flex h-14 w-14 overflow-hidden rounded-full border-2 border-brand bg-white p-1 shadow-md mb-2">
+            <div className="relative inline-flex h-12 w-auto mb-2 items-center justify-center">
               <img
                 src="/berojgar-logo.png"
                 alt="Berojgar Engineer Club Logo"
-                className="h-full w-full object-contain"
+                className="h-12 w-auto object-contain"
               />
             </div>
             <h3 className="font-heading text-xl font-bold text-foreground">Welcome to Berojgar Engineer Club</h3>

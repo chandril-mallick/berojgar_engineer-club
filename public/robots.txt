@@ -1,0 +1,11 @@
+# Berojgar Engineer Club - robots.txt
+User-agent: *
+Allow: /
+
+# Block private/API routes from crawling
+Disallow: /api/
+Disallow: /score
+Disallow: /profile
+
+# Sitemaps
+Sitemap: https://berojgarengineer.club/sitemap.xml

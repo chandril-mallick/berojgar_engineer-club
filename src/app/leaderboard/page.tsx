@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Trophy, Award } from "lucide-react";
 import { BranchLeaderboard } from "@/components/community/branch-leaderboard";
 
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { UserXP, LeaderboardEntry } from "@/types";
+import { DEFAULT_USER_XP } from "@/lib/xp";
+import { getUserFirestoreProfile } from "@/lib/firestore-service";
+
 const TIME_TABS = ["Weekly", "Monthly", "All Time"] as const;
 type TimeTab = (typeof TIME_TABS)[number];
 
@@ -33,13 +40,72 @@ const rowVariants: Variants = {
 };
 
 export default function LeaderboardPage() {
+  const { user } = useAuth();
+  const [userXP] = useLocalStorage<UserXP>("bec-user-xp", DEFAULT_USER_XP);
   const [mainTab, setMainTab] = useState<"overall" | "branch">("overall");
   const [activeTab, setActiveTab] = useState<TimeTab>("Weekly");
   const [branch, setBranch] = useState("All");
   const [year, setYear] = useState("All");
   const [state, setState] = useState("All");
+  const [profile, setProfile] = useState<any>(null);
 
-  const filtered = LEADERBOARD_DATA.filter((e) => {
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    const uid = user.uid;
+    async function fetchProfile() {
+      const res = await getUserFirestoreProfile(uid);
+      if (res.success && res.data) {
+        setProfile(res.data);
+      }
+    }
+    fetchProfile();
+  }, [user]);
+
+  // Construct combined leaderboard list merging seed entries + logged-in user
+  const combined: LeaderboardEntry[] = [...LEADERBOARD_DATA];
+
+  if (user) {
+    const userDisplayName = user.displayName || user.email?.split("@")[0] || "You";
+    const existingIdx = combined.findIndex(
+      (e) => e.name.toLowerCase() === userDisplayName.toLowerCase()
+    );
+
+    const userEntry: LeaderboardEntry = {
+      rank: 0,
+      name: userDisplayName + " (You)",
+      college: profile?.college || "Engineering College",
+      branch: profile?.branch || "CSE",
+      state: "West Bengal",
+      year: profile?.year || "4",
+      score: profile?.berojgarScore || 82,
+      projects: profile?.answers?.projects || 2,
+      xp: userXP.total || 120,
+      offer: profile?.answers?.internships > 0 ? "Placed" : "Grinding",
+      badgeIds: userXP.earnedBadgeIds.length > 0 ? userXP.earnedBadgeIds : ["streak-7", "first-blood", "dsa-hero"],
+      avatarColor: "#6366f1",
+    };
+
+    if (existingIdx !== -1) {
+      combined[existingIdx] = {
+        ...combined[existingIdx],
+        xp: Math.max(combined[existingIdx].xp, userXP.total),
+      };
+    } else {
+      combined.push(userEntry);
+    }
+  }
+
+  // Sort by XP descending and calculate live ranks
+  combined.sort((a, b) => b.xp - a.xp);
+  const rankedAll = combined.map((entry, idx) => ({
+    ...entry,
+    rank: idx + 1,
+  }));
+
+  const filtered = rankedAll.filter((e) => {
     if (branch !== "All" && e.branch !== branch) return false;
     if (state !== "All" && e.state !== state) return false;
     return true;

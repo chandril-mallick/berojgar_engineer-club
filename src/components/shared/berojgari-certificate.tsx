@@ -40,15 +40,15 @@ export function BerojgariCertificate({
   const captionOptions = [
     {
       title: " Wry Self-Deprecating Roast (Recommended)",
-      text: `When Berojgar Engineer Club rates your Berojgar Risk as Level ${score}/100 \n\nAI Roast: "${roast}"\n\nCheck your employbility score before HR sends you an automated rejection email: https://berojgarengineer.club\n\n#BerojgarEngineerClub #PlacementSeason #Engineering`,
+      text: `When Berojgar Engineer Club rates your Career Readiness as Level ${score}/100 💀\n\nAI Roast: "${roast}"\n\nCheck your career readiness score: https://berojgarengineer.club\n\n#BerojgarEngineerClub #PlacementSeason #Engineering`,
     },
     {
       title: " The Unfocused Genius Flex",
-      text: `Officially scored ${score}/100 on Berojgar Engineer Club! \n\nPredicted CTC: ₹${predictedCtc} LPA (${riskLevel} Risk)\nAI Roast: "${roast}"\n\nAre you employable or cooked? Check your score now: https://berojgarengineer.club\n\n#BerojgarEngineerClub #TechPlacement #SDE`,
+      text: `Career Readiness Score: ${score}/100 on Berojgar Engineer Club! \n\nRisk Level: ${riskLevel}\nAI Roast: "${roast}"\n\nKnow your gap before placement season: https://berojgarengineer.club\n\n#BerojgarEngineerClub #TechPlacement #SDE`,
     },
     {
-      title: " Bureaucratic Audit Meme",
-      text: `Received my Official Certificate of Berojgari (Audit #${certId})! \n\nLevel: ${score}/100 Risk Index: ${riskLevel}\nCertified by: Chief AI Assessor\n\nAudit yourself before final placements begin: https://berojgarengineer.club\n\n#BerojgarEngineerClub #EngineeringMemes`,
+      title: " Unofficial Audit Meme",
+      text: `Received my Unofficial Certificate of Berojgari (Audit #${certId})! \n\nCareer Readiness: ${score}/100 (${riskLevel} Risk)\nIssued by: Berojgar Engineer Club\n\nDiagnostic result, 100% brutally honest: https://berojgarengineer.club\n\n#BerojgarEngineerClub #EngineeringMemes`,
     },
   ];
 
@@ -90,9 +90,9 @@ export function BerojgariCertificate({
 
   return (
     <div className="space-y-6">
-      {/* ── Official Funny Certificate Card Wrapper ── */}
+      {/* ── Unofficial Certificate Card Wrapper ── */}
       <div className="relative">
-        {/* Floating Download Button (Outside certRef capture target) */}
+        {/* Floating Download Button */}
         <button
           onClick={handleDownloadJpg}
           disabled={isDownloading}
@@ -118,27 +118,30 @@ export function BerojgariCertificate({
 
         {/* Certificate Outer Border */}
         <div className="border border-amber-300 p-4 sm:p-6 rounded-[14px]">
-          {/* Header Seal + Title (Centered Stack) */}
-          <div className="flex flex-col items-center justify-center text-center space-y-2.5">
-            <div className="relative inline-flex items-center justify-center h-16 w-16 rounded-full bg-white border-2 border-amber-500 shadow-md p-1.5">
-              <img src="/berojgar-logo.png" alt="Berojgar Logo" className="h-full w-full object-contain" />
+          {/* Header Seal + Title */}
+          <div className="flex flex-col items-center justify-center text-center space-y-2">
+            <div className="relative inline-flex items-center justify-center h-14 w-auto">
+              <img src="/berojgar-logo.png" alt="Berojgar Engineer Club Logo" className="h-14 w-auto object-contain" />
             </div>
 
-            <div className="inline-block rounded-full bg-amber-200/80 px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-amber-950 border border-amber-300 font-mono shadow-2xs">
-              Official Placement Risk Audit
+            <div className="inline-block rounded-full bg-amber-200/80 px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-950 border border-amber-300 font-mono">
+              UNOFFICIAL CAREER REALITY CHECK
             </div>
 
-            <h2 className="font-heading text-2xl sm:text-3xl font-black text-amber-950 uppercase tracking-tight pt-1">
+            <h2 className="font-heading text-2xl sm:text-3xl font-black text-amber-950 uppercase tracking-tight pt-0.5">
               Certificate of Berojgari
             </h2>
             <p className="text-[11px] text-amber-900 font-medium italic">
-              Issued by the Ministry of Brutally Honest Engineering Career Intelligence
+              Issued by Berojgar Engineer Club
+            </p>
+            <p className="text-[10px] font-mono text-amber-800/80 font-bold">
+              100% unofficial. 100% brutally honest.
             </p>
           </div>
 
           {/* Certificate Body */}
-          <div className="my-6 text-center space-y-3 border-y border-amber-200/80 py-5">
-            <p className="text-xs text-amber-900/70 uppercase font-semibold">This is to certify that</p>
+          <div className="my-5 text-center space-y-2.5 border-y border-amber-200/80 py-4">
+            <p className="text-[11px] text-amber-900/70 uppercase font-semibold tracking-wider">This is to certify that</p>
             <h3 className="font-heading text-lg sm:text-xl font-extrabold text-foreground tracking-tight underline decoration-amber-400 decoration-2 underline-offset-4">
               {userName}
             </h3>
@@ -162,27 +165,22 @@ export function BerojgariCertificate({
               </div>
             )}
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <div className="rounded-xl border border-amber-300 bg-white px-4 py-2 text-center shadow-xs">
-                <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Berojgar Score</p>
+            <div className="pt-2 flex flex-row items-center justify-center gap-4">
+              <div className="rounded-xl border border-amber-300 bg-white px-5 py-2 text-center shadow-xs">
+                <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Career Readiness</p>
                 <p className="font-mono text-2xl font-black text-amber-600">{score}<span className="text-xs text-muted">/100</span></p>
               </div>
 
-              <div className="rounded-xl border border-amber-300 bg-white px-4 py-2 text-center shadow-xs">
+              <div className="rounded-xl border border-amber-300 bg-white px-5 py-2 text-center shadow-xs">
                 <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Risk Level</p>
                 <p className={`font-mono text-base font-black ${riskLevel === "HIGH" ? "text-rose-600" : riskLevel === "MEDIUM" ? "text-amber-600" : "text-emerald-600"}`}>
                   {riskLevel} RISK
                 </p>
               </div>
-
-              <div className="rounded-xl border border-amber-300 bg-white px-4 py-2 text-center shadow-xs">
-                <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Predicted CTC</p>
-                <p className="font-mono text-base font-black text-foreground">₹{predictedCtc} LPA</p>
-              </div>
             </div>
 
             {/* AI Roast Quote Box */}
-            <div className="mt-4 rounded-xl border border-amber-300 bg-amber-100/50 p-3.5 text-xs text-amber-950 italic relative">
+            <div className="mt-3 rounded-xl border border-amber-300 bg-amber-100/50 p-3 text-xs text-amber-950 italic relative">
               &ldquo;{roast}&rdquo;
             </div>
           </div>
@@ -190,8 +188,8 @@ export function BerojgariCertificate({
           {/* Footer Signatures */}
           <div className="flex items-end justify-between text-left text-[10px] text-amber-900/80 pt-1">
             <div>
-              <p className="font-bold text-foreground">Chief AI Assessor</p>
-              <p className="text-muted">Berojgar Engineer Club</p>
+              <p className="font-bold text-foreground">Berojgar Engineer Club</p>
+              <p className="text-muted">Career Diagnostic Tool</p>
             </div>
 
             <div className="text-center">
@@ -202,7 +200,7 @@ export function BerojgariCertificate({
 
             <div className="text-right">
               <p className="font-bold text-foreground">berojgarengineer.club</p>
-              <p className="text-muted">Verified Reality Check</p>
+              <p className="text-muted">100% Unofficial</p>
             </div>
           </div>
         </div>

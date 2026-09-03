@@ -16,7 +16,7 @@ export function SharePanel({ score, roast, className = "" }: SharePanelProps) {
 
   const defaultRoast = roast || "One focused sprint away from becoming HR's favorite candidate.";
 
-  const shareText = `🎓 Berojgar Score: ${score}/100 💀\n\nAI Roast: "${defaultRoast}"\n\nAre you employable or cooked? Check your score now at https://berojgarengineer.club #BerojgarEngineerClub`;
+  const shareText = `🎓 Berojgar Career Readiness: ${score}/100 💀\n\nAI Roast: "${defaultRoast}"\n\n"Your degree isn't the problem. Your proof is."\n\nKnow your gaps at https://berojgarengineer.club #BerojgarEngineerClub`;
 
   const copyLink = async () => {
     try {
@@ -50,15 +50,19 @@ export function SharePanel({ score, roast, className = "" }: SharePanelProps) {
       <div className="relative overflow-hidden rounded-[14px] border border-border bg-foreground p-4 text-white shadow-md">
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 font-mono">
-            MY BEROJGAR SCORE
+            BEROJGAR ENGINEER CLUB
           </p>
           <Sparkles size={14} className="text-amber-400" />
         </div>
-        <p className="font-mono text-4xl font-black text-brand mt-1">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-brand font-mono mt-1">
+          MY CAREER READINESS
+        </p>
+        <p className="font-mono text-4xl font-black text-brand mt-0.5">
           {score}<span className="text-xl text-white/40">/100</span>
         </p>
-        <p className="mt-1.5 text-xs text-white/70 italic leading-relaxed">&ldquo;{defaultRoast}&rdquo;</p>
-        <p className="mt-2 text-[10px] text-brand/90 font-medium">Can you beat me? berojgarengineer.club</p>
+        <p className="mt-1.5 text-xs text-white/80 italic leading-relaxed">&ldquo;{defaultRoast}&rdquo;</p>
+        <p className="mt-2 text-[10px] text-white/60 font-mono italic">&ldquo;Your degree isn&apos;t the problem. Your proof is.&rdquo;</p>
+        <p className="mt-1 text-[10px] text-brand/90 font-medium">berojgarengineer.club</p>
       </div>
 
       {/* Action buttons */}

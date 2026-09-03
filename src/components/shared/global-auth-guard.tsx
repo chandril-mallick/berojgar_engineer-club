@@ -89,20 +89,12 @@ export function GlobalAuthGuard({ children }: { children: React.ReactNode }) {
 
 function getSectionTitle(path: string): string {
   switch (path) {
-    case "/tasks":
-      return "Task Manager";
+    case "/real-world-dsa":
+      return "Real-World DSA Lab";
     case "/assessment":
       return "Reality Check Assessment";
-    case "/colleges":
-      return "College Rankings";
-    case "/companies":
-      return "Company Prep Hub";
-    case "/hackathons":
-      return "Hackathons & Contests";
     case "/referrals":
       return "Referral Marketplace";
-    case "/projects":
-      return "Project Showcase";
     case "/daily-challenge":
       return "Daily Coding Challenge";
     case "/study-groups":

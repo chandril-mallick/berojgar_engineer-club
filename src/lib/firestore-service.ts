@@ -3,6 +3,10 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  query,
+  orderBy,
+  limit,
   collection,
   addDoc,
   serverTimestamp,
@@ -70,17 +74,24 @@ export async function saveUserAssessment(
       createdAt: serverTimestamp(),
     });
 
-    // Update main user document score
+    // Update main user document score and profile metadata
     const userRef = doc(db, "users", uid);
-    await setDoc(
-      userRef,
-      {
-        berojgarScore: assessment.score,
-        riskIndex: assessment.riskIndex,
-        lastAssessmentAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
+    const profileUpdates: Record<string, any> = {
+      berojgarScore: assessment.score,
+      riskIndex: assessment.riskIndex,
+      lastAssessmentAt: serverTimestamp(),
+    };
+
+    if (assessment.answers) {
+      profileUpdates.college = assessment.answers.college || "Engineering College";
+      profileUpdates.branch = assessment.answers.branch || "CSE";
+      profileUpdates.year = assessment.answers.year || "4";
+      profileUpdates.github = assessment.answers.github || "no";
+      profileUpdates.linkedin = assessment.answers.linkedin || "no";
+      profileUpdates.targetCompany = assessment.answers.targetCompany || "";
+    }
+
+    await setDoc(userRef, profileUpdates, { merge: true });
     return { success: true };
   } catch (error) {
     console.warn("Firestore saveUserAssessment fallback:", error);
@@ -221,3 +232,94 @@ export async function getUserFirestoreProfile(uid: string) {
     return { success: false, error };
   }
 }
+
+// 8. Save & Get Global Community Referral Requests
+export async function saveCommunityReferral(referral: {
+  company: string;
+  role: string;
+  targetPackage: string;
+  requesterName: string;
+  college: string;
+  branch: string;
+  yoGrad: string;
+  experience: string;
+  skills: string[];
+  proofLink: string;
+}) {
+  try {
+    const refCol = collection(db, "community_referrals");
+    const docRef = await addDoc(refCol, {
+      ...referral,
+      createdAt: serverTimestamp(),
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.warn("Firestore saveCommunityReferral fallback:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getCommunityReferrals() {
+  try {
+    const refCol = collection(db, "community_referrals");
+    const q = query(refCol, orderBy("createdAt", "desc"), limit(20));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return { success: true, data: results };
+  } catch (error) {
+    console.warn("Firestore getCommunityReferrals fallback:", error);
+    return { success: false, data: [] };
+  }
+}
+
+// 9. Save & Get Global Offer Wall Posts
+export async function saveCommunityOffer(offer: {
+  studentName: string;
+  college: string;
+  company: string;
+  role: string;
+  packageLpa: number;
+  branch: string;
+  year: string;
+  storySnippet: string;
+}) {
+  try {
+    const offerCol = collection(db, "community_offers");
+    const docRef = await addDoc(offerCol, {
+      ...offer,
+      createdAt: serverTimestamp(),
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.warn("Firestore saveCommunityOffer fallback:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getCommunityOffers() {
+  try {
+    const offerCol = collection(db, "community_offers");
+    const q = query(offerCol, orderBy("createdAt", "desc"), limit(20));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return { success: true, data: results };
+  } catch (error) {
+    console.warn("Firestore getCommunityOffers fallback:", error);
+    return { success: false, data: [] };
+  }
+}
+
+// 10. Get Top Registered Users for Leaderboard
+export async function getTopFirestoreUsers() {
+  try {
+    const usersCol = collection(db, "users");
+    const q = query(usersCol, orderBy("berojgarScore", "desc"), limit(20));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
+    return { success: true, data: results };
+  } catch (error) {
+    console.warn("Firestore getTopFirestoreUsers fallback:", error);
+    return { success: false, data: [] };
+  }
+}
+

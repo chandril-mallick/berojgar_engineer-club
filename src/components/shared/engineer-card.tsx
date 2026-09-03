@@ -45,10 +45,8 @@ export function EngineerCard({
       />
 
       {/* Brand watermark */}
-      <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-60">
-        <div className="relative h-5 w-5 overflow-hidden rounded-[4px] border border-white/20">
-          <img src="/berojgar-logo.png" alt="BE" className="w-full h-full object-cover" />
-        </div>
+      <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-80">
+        <img src="/berojgar-logo.png" alt="BE" className="h-4 w-auto object-contain" />
         <span className="text-[10px] font-medium tracking-wide">berojgarengineer.club</span>
       </div>
 

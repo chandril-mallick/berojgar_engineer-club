@@ -5,12 +5,12 @@ export default function Loading() {
     <div className="relative min-h-[60vh] flex flex-col items-center justify-center px-4 py-12">
       {/* Centered Branded Logo Loader */}
       <div className="flex flex-col items-center text-center space-y-4 mb-8 z-10">
-        <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-border bg-white p-0.5 shadow-md animate-pulse">
+        <div className="relative h-16 w-auto animate-pulse flex items-center justify-center">
           {/* eslint-disable-next-next/no-img-element */}
           <img
             src="/berojgar-logo.png"
-            alt="Berojgar Engineer Logo"
-            className="w-full h-full object-contain"
+            alt="Berojgar Engineer Club Logo"
+            className="h-16 w-auto object-contain"
           />
         </div>
         <p className="text-xs font-semibold text-muted tracking-wide animate-pulse">

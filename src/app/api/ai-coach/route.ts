@@ -1,20 +1,63 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limiter";
 
-const FALLBACK_MODELS = [
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "google/gemini-2.0-flash-lite-001",
-  "deepseek/deepseek-r1:free",
-  "qwen/qwen-2.5-72b-instruct:free",
-  "mistralai/mistral-7b-instruct:free",
+// Primary models (non-free, reliable) - used when OPENROUTER_API_KEY is a paid/upgraded key
+const PRIMARY_MODELS = [
+  "google/gemini-2.0-flash-001",
+  "meta-llama/llama-3.3-70b-instruct",
+  "anthropic/claude-3-haiku",
+];
+
+// Free-tier fallback models (may have rate limits / latency)
+const FREE_FALLBACK_MODELS = [
+  "openrouter/free", // Universal wildcard routing (automatically picks an active free model)
+  "google/gemma-2-9b-it:free",
+  "meta-llama/llama-3-8b-instruct:free",
 ];
 
 export async function POST(req: Request) {
   try {
+    // ── Rate Limit: 10 AI requests per IP per minute ────────────────────
+    const ip = getClientIP(req);
+    const rateLimit = checkRateLimit(`ai-coach:${ip}`, { limit: 10, windowMs: 60_000 });
+    if (!rateLimit.success) {
+      const retryAfterSec = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+      return NextResponse.json(
+        { error: "Too many requests. Please wait before sending another message." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfterSec),
+            "X-RateLimit-Limit": "10",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(rateLimit.resetAt),
+          },
+        }
+      );
+    }
+
     const { prompt, mode } = await req.json();
 
-    const apiKey =
-      process.env.OPENROUTER_API_KEY ||
-      "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";
+    // ── Prompt length guard: max 2000 characters ────────────────────────
+    if (!prompt || typeof prompt !== "string") {
+      return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
+    }
+    if (prompt.length > 2000) {
+      return NextResponse.json(
+        { error: "Prompt is too long. Please keep it under 2000 characters." },
+        { status: 400 }
+      );
+    }
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+
+    if (!apiKey) {
+      console.error("Missing OPENROUTER_API_KEY in environment variables.");
+      return NextResponse.json(
+        { error: "OPENROUTER_API_KEY is not configured on the server." },
+        { status: 500 }
+      );
+    }
 
     const systemPrompts: Record<string, string> = {
       assessment:
@@ -35,8 +78,14 @@ export async function POST(req: Request) {
     let reply = "";
     let usedModel = "";
 
-    // Multi-model retry mechanism
-    for (const modelCandidate of FALLBACK_MODELS) {
+    // Build model list: PRIMARY first (if paid key configured), then free fallbacks
+    const isPaidKey = process.env.OPENROUTER_TIER === "paid";
+    const orderedModels = isPaidKey
+      ? [...PRIMARY_MODELS, ...FREE_FALLBACK_MODELS]
+      : FREE_FALLBACK_MODELS;
+
+    // Multi-model retry with per-request timeout
+    for (const modelCandidate of orderedModels) {
       try {
         const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
@@ -55,6 +104,7 @@ export async function POST(req: Request) {
             temperature: 0.7,
             max_tokens: 600,
           }),
+          signal: AbortSignal.timeout(10000), // 10s per model attempt
         });
 
         if (res.ok) {
@@ -63,14 +113,19 @@ export async function POST(req: Request) {
           if (candidateReply) {
             reply = candidateReply;
             usedModel = modelCandidate;
-            break; // Success!
+            break;
           }
         } else {
           const errText = await res.text();
-          console.warn(`OpenRouter model ${modelCandidate} failed:`, errText);
+          // Skip to next model on rate-limit (429)
+          if (res.status === 429) {
+            console.warn(`Rate limited on ${modelCandidate}, trying next model.`);
+            continue;
+          }
+          console.warn(`OpenRouter model ${modelCandidate} failed (${res.status}):`, errText);
         }
       } catch (err) {
-        console.warn(`Fetch error for model ${modelCandidate}:`, err);
+        console.warn(`Fetch error / timeout for model ${modelCandidate}:`, err);
       }
     }
 
@@ -78,7 +133,7 @@ export async function POST(req: Request) {
     if (!reply) {
       reply =
         "Chief AI Assessor: Your credentials show high potential! Keep building real-world projects, solving DSA daily challenges on BEC, and sharpening your resume ATS bullets.";
-      usedModel = "fallback-ai-assessor";
+      usedModel = "fallback-static";
     }
 
     return NextResponse.json({ reply, model: usedModel });

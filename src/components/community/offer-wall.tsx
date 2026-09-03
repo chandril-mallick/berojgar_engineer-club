@@ -1,16 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OFFER_WALL_DATA } from "@/lib/community-data";
 import { OfferWallPost } from "@/types/community";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
-import { Sparkles, PartyPopper, CheckCircle2, Share2, MessageSquare, Trophy } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, PartyPopper, CheckCircle2, Share2, Plus, X } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { getCommunityOffers, saveCommunityOffer, getUserFirestoreProfile } from "@/lib/firestore-service";
 
 export function OfferWall() {
+  const { user, requireAuth } = useAuth();
   const [offers, setOffers] = useState<OfferWallPost[]>(OFFER_WALL_DATA);
   const [congratsMap, setCongratsMap] = useState<Record<string, boolean>>({});
+  const [showModal, setShowModal] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
+  const [packageLpa, setPackageLpa] = useState("");
+  const [journey, setJourney] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    const uid = user.uid;
+    async function fetchProfile() {
+      const res = await getUserFirestoreProfile(uid);
+      if (res.success && res.data) {
+        setProfile(res.data);
+      }
+    }
+    fetchProfile();
+  }, [user]);
+
+  useEffect(() => {
+    async function loadOffers() {
+      const res = await getCommunityOffers();
+      if (res.success && res.data.length > 0) {
+        const userOffers: OfferWallPost[] = res.data.map((d: any, idx: number) => ({
+          id: d.id || `user-offer-${idx}`,
+          studentName: d.studentName || "Placed Engineer",
+          college: d.college || "Engineering College",
+          branch: d.branch || "CSE",
+          company: d.company || "Tech Company",
+          logo: "🎉",
+          role: d.role || "Software Engineer",
+          packageLpa: Number(d.packageLpa) || 15,
+          offerDate: "Recent",
+          avatarColor: "#10b981",
+          journey: d.storySnippet || "Built projects, practiced daily DSA drills, and aced technical rounds.",
+          resourcesUsed: ["BEC Daily Challenge", "Real-World DSA Lab", "Resume Roaster"],
+          resumeHighlights: ["3 fullstack projects", "500+ LeetCode solved"],
+          congratulationsCount: 12,
+          questionsCount: 0,
+          prepTimeMonths: 4,
+        }));
+        setOffers([...userOffers, ...OFFER_WALL_DATA]);
+      }
+    }
+    loadOffers();
+  }, []);
 
   const handleCongratulate = (id: string) => {
     if (congratsMap[id]) return;
@@ -20,6 +74,51 @@ export function OfferWall() {
         o.id === id ? { ...o, congratulationsCount: o.congratulationsCount + 1 } : o
       )
     );
+  };
+
+  const handleCreateOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    requireAuth(async () => {
+      const userCollege = profile?.college || "Engineering College";
+      const userBranch = profile?.branch || "CSE";
+      const userYear = profile?.year || "4";
+
+      const newOfferObj: OfferWallPost = {
+        id: `offer-${Date.now()}`,
+        studentName: user?.displayName || "You",
+        college: userCollege,
+        branch: userBranch,
+        company: company || "Top Startup",
+        logo: "🚀",
+        role: role || "SDE-1",
+        packageLpa: Number(packageLpa) || 18,
+        offerDate: "Just now",
+        avatarColor: "#6366f1",
+        journey: journey || "Worked hard, solved daily DSA problems on BEC, and got placed!",
+        resourcesUsed: ["BEC DSA Lab", "AI Career Coach"],
+        resumeHighlights: [],
+        congratulationsCount: 1,
+        questionsCount: 0,
+        prepTimeMonths: 3,
+      };
+
+      setOffers((prev) => [newOfferObj, ...prev]);
+      setShowModal(false);
+      setFormSubmitted(true);
+
+      if (user) {
+        await saveCommunityOffer({
+          studentName: user.displayName || "Engineer",
+          college: userCollege,
+          company,
+          role,
+          packageLpa: Number(packageLpa) || 18,
+          branch: userBranch,
+          year: userYear,
+          storySnippet: journey,
+        });
+      }
+    }, "Authentication Required to share your placement story.");
   };
 
   return (
@@ -36,7 +135,95 @@ export function OfferWall() {
             Celebrating real success stories from the BEC community. See packages, prep duration, and exact resources used.
           </p>
         </div>
+
+        <Button
+          variant="dark"
+          size="sm"
+          onClick={() => setShowModal(true)}
+          className="gap-2 shrink-0 text-xs font-bold"
+        >
+          <Plus size={14} /> Post Placement Offer
+        </Button>
       </div>
+
+      {/* Post Offer Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-[20px] border border-border bg-white p-6 shadow-xl"
+            >
+              <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <PartyPopper size={18} className="text-emerald-500" />
+                  <h3 className="font-heading text-base font-bold text-foreground">Share Placement Offer</h3>
+                </div>
+                <button onClick={() => setShowModal(false)} className="text-muted hover:text-foreground">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateOffer} className="space-y-3.5">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase text-muted">Company Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="e.g. Google, Atlassian, Swiggy"
+                    className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-semibold uppercase text-muted">Offered Role</label>
+                  <input
+                    type="text"
+                    required
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="e.g. SDE 1 / Software Engineer"
+                    className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-semibold uppercase text-muted">CTC Package (LPA in ₹ Lakhs)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    required
+                    value={packageLpa}
+                    onChange={(e) => setPackageLpa(e.target.value)}
+                    placeholder="e.g. 18.5"
+                    className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-semibold uppercase text-muted">Preparation Journey & Advice</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={journey}
+                    onChange={(e) => setJourney(e.target.value)}
+                    placeholder="Describe how you prepared, daily DSA drills solved, and tips for juniors..."
+                    className="w-full rounded-[8px] border border-border p-2.5 text-xs outline-none focus:border-foreground/40 mt-1 resize-none"
+                  />
+                </div>
+
+                <Button type="submit" variant="dark" size="sm" className="w-full gap-2 text-xs font-bold mt-2">
+                  <PartyPopper size={14} /> Publish Story to Offer Wall
+                </Button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Offers Grid */}
       <div className="grid gap-6 sm:grid-cols-2">
@@ -109,7 +296,10 @@ export function OfferWall() {
                 <span>{congratsMap[offer.id] ? "Congratulated!" : "Congratulate"} ({offer.congratulationsCount})</span>
               </Button>
 
-              <Button variant="ghost" size="sm" onClick={() => alert("Shared to LinkedIn!")} className="gap-1.5 text-xs text-muted">
+              <Button variant="ghost" size="sm" onClick={() => {
+                const url = typeof window !== "undefined" ? window.location.href : "https://berojgarengineer.club";
+                navigator.clipboard?.writeText(url).catch(() => {});
+              }} className="gap-1.5 text-xs text-muted">
                 <Share2 size={13} /> Share
               </Button>
             </div>

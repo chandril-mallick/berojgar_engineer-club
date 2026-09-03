@@ -58,7 +58,7 @@ int main() {
     defaultCode: `// Java Solution
 import java.util.*;
 
-public className Main {
+public class Main {
     public static int[] twoSum(int[] nums, int target) {
         Map<Integer, Integer> seen = new HashMap<>();
         for (int i = 0; i < nums.length; i++) {

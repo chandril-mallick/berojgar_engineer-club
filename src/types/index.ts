@@ -25,6 +25,8 @@ export interface AssessmentInput {
   targetCompany: string;
   topProject?: string;
   keyAchievement?: string;
+  interviewConfidence?: number;
+  targetRole?: string;
 }
 
 export interface ScoreResult {
@@ -33,9 +35,18 @@ export interface ScoreResult {
   roast: string;
   strengths: string[];
   weaknesses: string[];
-  placementProbability: number;
-  salaryPredictionLpa: number;
+  placementProbability?: number;
+  salaryPredictionLpa?: number;
   careerType: string;
+  breakdown?: {
+    dsa: number;
+    projects: number;
+    resume: number;
+    interview: number;
+  };
+  biggestGap?: string;
+  strongestArea?: string;
+  summaryExplanation?: string;
 }
 
 export interface ResumeRoastResult {
@@ -84,6 +95,7 @@ export interface LeaderboardEntry {
   offer: string | null;
   badgeIds: string[];
   avatarColor: string;
+  avatarUrl?: string;
 }
 
 export interface DailyChallenge {
@@ -102,6 +114,7 @@ export interface SocialProofEntry {
   afterScore: number;
   company: string;
   role: string;
+  avatarUrl?: string;
 }
 
 export interface CommunityPost {

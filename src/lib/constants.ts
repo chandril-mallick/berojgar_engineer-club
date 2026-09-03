@@ -1,18 +1,18 @@
 export const PRIMARY_NAV_LINKS = [
   { href: "/assessment", label: "Reality Check" },
-  { href: "/colleges", label: "Colleges" },
-  { href: "/companies", label: "Companies" },
-  { href: "/hackathons", label: "Hackathons" },
-  { href: "/referrals", label: "Referrals" },
+  { href: "/ai-coach", label: "AI Coach" },
+  { href: "/resume", label: "Resume Roast" },
+  { href: "/daily-challenge", label: "Daily Grind" },
 ];
 
 export const MORE_NAV_LINKS = [
-  { href: "/tasks", label: "Task Manager", desc: "Engineering work & task tracker" },
-  { href: "/projects", label: "Projects", desc: "Showcase & explore builds" },
-  { href: "/daily-challenge", label: "Daily Grind", desc: "Daily DSA & dev tasks" },
+  { href: "/real-world-dsa", label: "Real-World DSA Lab", desc: "Learn DSA via real engineering scenarios" },
+  { href: "/referrals", label: "Referrals Market", desc: "Request off-campus job referrals" },
   { href: "/study-groups", label: "Study Groups", desc: "Peer learning & group prep" },
   { href: "/memes", label: "Memes & Stories", desc: "Engineering humor & stories" },
   { href: "/leaderboard", label: "Leaderboard", desc: "Rankings & student XP" },
+  { href: "/offer-wall", label: "Offer Wall", desc: "Placement proof & CTC proof" },
+  { href: "/ambassador", label: "Campus Ambassador", desc: "Student leader rewards" },
 ];
 
 export const NAV_LINKS = [...PRIMARY_NAV_LINKS, ...MORE_NAV_LINKS];

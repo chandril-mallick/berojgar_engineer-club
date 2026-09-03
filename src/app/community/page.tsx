@@ -4,47 +4,27 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2,
   Trophy,
-  Building,
-  Rocket,
   Handshake,
   Flame,
-  Ghost,
   PartyPopper,
   Zap,
-  Code2,
   Radio,
   Award,
   Bot,
   ArrowRight,
   Sparkles,
+  Cpu,
 } from "lucide-react";
 import Link from "next/link";
 
 const COMMUNITY_HUBS = [
   {
-    title: "College Rankings",
-    href: "/colleges",
-    icon: Building2,
-    badge: "Live Rankings",
-    description: "Compare engineering colleges across India by avg Berojgar score, placement rates, and top CTC packages.",
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-  },
-  {
-    title: "Company Preparation Hub",
-    href: "/companies",
-    icon: Building,
-    badge: "10+ Tech Giants",
-    description: "Deep-dive guides for Google, Microsoft, Amazon, TCS, Infosys, Atlassian OA questions & hiring rounds.",
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  {
-    title: "Hackathon Arena & Team Finder",
-    href: "/hackathons",
-    icon: Rocket,
-    badge: "SIH & ETHIndia",
-    description: "Discover national hackathons, find teammates with complementary tech stacks, and register for reminders.",
+    title: "Real-World DSA Lab",
+    href: "/real-world-dsa",
+    icon: Cpu,
+    badge: "Engineering Scenarios",
+    description: "Learn DSA by solving realistic business problems from Swiggy, Google Maps, 1mg, and Amazon.",
     color: "bg-amber-50 text-amber-700 border-amber-200",
   },
   {
@@ -78,14 +58,6 @@ const COMMUNITY_HUBS = [
     badge: "+150 XP Daily",
     description: "Solve daily DSA, Aptitude, SQL, CS MCQ, and AI questions to build your streak and climb the leaderboard.",
     color: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  },
-  {
-    title: "Project Showcase & Open Source",
-    href: "/projects",
-    icon: Code2,
-    badge: "Student Repos",
-    description: "Discover student portfolios, fork project ideas, request collaborators, and contribute to beginner repos.",
-    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
   },
   {
     title: "Study Groups & Live Voice Rooms",

@@ -6,10 +6,11 @@ import { ReferralListing, StudentReferralRequest } from "@/types/community";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { Handshake, Building2, FileText, Send, CheckCircle2, Clock, XCircle, Search, X } from "lucide-react";
+import { Handshake, Send, X } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { recordWorkSubmission } from "@/services/task-service";
+import { saveCommunityReferral } from "@/lib/firestore-service";
 
 export function ReferralMarketplace() {
   const { user, requireAuth } = useAuth();
@@ -35,6 +36,20 @@ export function ReferralMarketplace() {
   ]);
 
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // ── Controlled form state ────────────────────────────────────────────────
+  const [roleField, setRoleField] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [pitch, setPitch] = useState("");
+
+  const resetForm = () => {
+    setRoleField("");
+    setResumeUrl("");
+    setPitch("");
+    setFormSubmitted(false);
+    setIsSaving(false);
+  };
 
   const filtered = REFERRALS_DATA.filter((r) => {
     if (selectedCompany !== "All" && r.company !== selectedCompany) return false;
@@ -124,7 +139,7 @@ export function ReferralMarketplace() {
                 variant="dark"
                 size="sm"
                 disabled={remaining <= 0}
-                onClick={() => { setActiveListing(listing); setFormSubmitted(false); }}
+                onClick={() => { setActiveListing(listing); resetForm(); }}
                 className="w-full gap-2 text-xs"
               >
                 <Send size={13} /> Request Referral
@@ -179,54 +194,92 @@ export function ReferralMarketplace() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     requireAuth(async () => {
-                      setFormSubmitted(true);
-                      setMyRequests((prev) => [
-                        ...prev,
-                        {
-                          id: `req-${Date.now()}`,
-                          listingId: activeListing.id,
-                          company: activeListing.company,
-                          role: activeListing.role,
-                          studentName: user?.displayName || "You",
-                          college: "Your College",
-                          branch: "CSE",
-                          cgpa: 8.5,
-                          resumeUrl: "https://drive.google.com/resume",
-                          portfolioUrl: "https://github.com",
-                          message: "Elevator pitch submitted",
-                          status: "Pending",
-                          updatedAt: "Just now",
-                        },
-                      ]);
+                      setIsSaving(true);
 
+                      // ── Optimistic local update ──────────────────────────
+                      const newReq: StudentReferralRequest = {
+                        id: `req-${Date.now()}`,
+                        listingId: activeListing.id,
+                        company: activeListing.company,
+                        role: roleField || activeListing.role,
+                        studentName: user?.displayName || "You",
+                        college: "Your College",
+                        branch: "CSE",
+                        cgpa: 8.5,
+                        resumeUrl: resumeUrl,
+                        portfolioUrl: "",
+                        message: pitch,
+                        status: "Pending",
+                        updatedAt: "Just now",
+                      };
+                      setMyRequests((prev) => [...prev, newReq]);
+                      setFormSubmitted(true);
+
+                      // ── Firestore save ───────────────────────────────────
                       if (user) {
+                        await saveCommunityReferral({
+                          company: activeListing.company,
+                          role: roleField || activeListing.role,
+                          targetPackage: "Open",
+                          requesterName: user.displayName || "Engineer",
+                          college: "Engineering College",
+                          branch: "CSE",
+                          yoGrad: new Date().getFullYear().toString(),
+                          experience: "Fresher",
+                          skills: activeListing.preferredSkills ?? [],
+                          proofLink: resumeUrl,
+                        });
+
                         await recordWorkSubmission(user.uid, {
                           type: "referral_request",
                           title: `Referral pitch for ${activeListing.company}`,
-                          payload: { company: activeListing.company, role: activeListing.role },
+                          payload: { company: activeListing.company, role: roleField || activeListing.role },
                         });
                       }
+
+                      setIsSaving(false);
                     }, "Authentication Required: You must be logged in to request referrals.");
                   }}
                   className="space-y-3"
                 >
                   <div>
                     <label className="text-[10px] font-semibold uppercase text-muted">Target Role / Job ID</label>
-                    <input type="text" required placeholder="e.g. Software Engineer - Job #94821" className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1" />
+                    <input
+                      type="text"
+                      required
+                      value={roleField}
+                      onChange={(e) => setRoleField(e.target.value)}
+                      placeholder="e.g. Software Engineer - Job #94821"
+                      className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1"
+                    />
                   </div>
 
                   <div>
                     <label className="text-[10px] font-semibold uppercase text-muted">Resume PDF URL</label>
-                    <input type="url" required placeholder="https://drive.google.com/your-resume" className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1" />
+                    <input
+                      type="url"
+                      required
+                      value={resumeUrl}
+                      onChange={(e) => setResumeUrl(e.target.value)}
+                      placeholder="https://drive.google.com/your-resume"
+                      className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1"
+                    />
                   </div>
 
                   <div>
                     <label className="text-[10px] font-semibold uppercase text-muted">Personal Pitch Message</label>
-                    <textarea required rows={3} placeholder="Introduce yourself, projects, and top skills..." className="w-full rounded-[8px] border border-border p-2.5 text-xs outline-none focus:border-foreground/40 mt-1 resize-none" />
+                    <textarea
+                      required
+                      rows={3}
+                      value={pitch}
+                      onChange={(e) => setPitch(e.target.value)}
+                      placeholder="Introduce yourself, projects, and top skills..."
+                      className="w-full rounded-[8px] border border-border p-2.5 text-xs outline-none focus:border-foreground/40 mt-1 resize-none"
+                    />
                   </div>
 
-                  <Button type="submit" variant="dark" size="sm" className="w-full gap-2">
-                    Send Request
+                  <Button type="submit" variant="dark" size="sm" className="w-full gap-2" disabled={isSaving}>
+                    {isSaving ? "Sending…" : <><Send size={13} /> Send Request</>}
                   </Button>
                 </form>
               )}

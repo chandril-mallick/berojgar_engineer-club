@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MEMES_DATA } from "@/lib/community-data";
 import { MemeItem } from "@/types/community";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,10 @@ import { Heart, MessageSquare, Share2, Bookmark, PlusCircle, Flame, Sparkles, X,
 import { useAuth } from "@/hooks/use-auth";
 
 const CATEGORIES = ["All", "Placement", "Coding", "Exam", "Hostel", "Interview", "Confession"];
+const MEME_CACHE_KEY = "bec-community-user-memes";
 
 export function MemeFeed() {
-  const { requireAuth } = useAuth();
+  const { user, requireAuth } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [memes, setMemes] = useState<MemeItem[]>(MEMES_DATA);
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
@@ -23,6 +24,18 @@ export function MemeFeed() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [newCaption, setNewCaption] = useState("");
   const [newCategory, setNewCategory] = useState<MemeItem["category"]>("Placement");
+
+  useEffect(() => {
+    try {
+      const cached = window.localStorage.getItem(MEME_CACHE_KEY);
+      if (cached) {
+        const userMemes: MemeItem[] = JSON.parse(cached);
+        setMemes([...userMemes, ...MEMES_DATA]);
+      }
+    } catch (e) {
+      console.error("Failed to load cached user memes", e);
+    }
+  }, []);
 
   const filtered = memes.filter((m) => {
     if (selectedCategory !== "All" && m.category !== selectedCategory) return false;
@@ -87,21 +100,30 @@ export function MemeFeed() {
     requireAuth(() => {
       const newPost: MemeItem = {
         id: `m-${Date.now()}`,
-        author: newCategory === "Confession" ? "Anonymous Engineer" : "You",
+        author: newCategory === "Confession" ? "Anonymous Engineer" : user?.displayName || "You",
         college: "Your College",
         avatarColor: "#8b5cf6",
         caption: newCaption.trim(),
-      category: newCategory,
-      likes: 1,
-      commentsCount: 0,
-      shares: 0,
-      timeAgo: "Just now",
-      isConfession: newCategory === "Confession",
-    };
+        category: newCategory,
+        likes: 1,
+        commentsCount: 0,
+        shares: 0,
+        timeAgo: "Just now",
+        isConfession: newCategory === "Confession",
+      };
 
-    setMemes([newPost, ...memes]);
-    setNewCaption("");
-    setCreateModalOpen(false);
+      try {
+        const cached = window.localStorage.getItem(MEME_CACHE_KEY);
+        const existing: MemeItem[] = cached ? JSON.parse(cached) : [];
+        const updated = [newPost, ...existing];
+        window.localStorage.setItem(MEME_CACHE_KEY, JSON.stringify(updated));
+      } catch (err) {
+        console.error("Failed to cache new user meme", err);
+      }
+
+      setMemes((prev) => [newPost, ...prev]);
+      setNewCaption("");
+      setCreateModalOpen(false);
     }, "Authentication Required: You must be signed in to post memes or confessions.");
   };
 
@@ -198,7 +220,7 @@ export function MemeFeed() {
                 </button>
 
                 <button
-                  onClick={() => alert("Copied share link to meme!")}
+                  onClick={() => navigator.clipboard?.writeText(window.location.href).catch(() => {})}
                   className="flex items-center gap-1.5 hover:text-foreground transition-colors"
                 >
                   <Share2 size={15} />

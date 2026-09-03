@@ -14,6 +14,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Google",
     badgeIds: ["placement-slayer", "github-beast", "dsa-hero", "top-1-percent", "overachiever"],
     avatarColor: "#6366f1",
+    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 2,
@@ -28,6 +29,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Amazon",
     badgeIds: ["placement-slayer", "github-beast", "resume-warrior", "streak-7"],
     avatarColor: "#f59e0b",
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 3,
@@ -42,6 +44,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Microsoft",
     badgeIds: ["placement-slayer", "dsa-hero", "night-coder", "interview-master"],
     avatarColor: "#10b981",
+    avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 4,
@@ -56,6 +59,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Flipkart",
     badgeIds: ["placement-slayer", "resume-warrior", "github-beast"],
     avatarColor: "#ec4899",
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 5,
@@ -70,6 +74,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Infosys",
     badgeIds: ["placement-slayer", "streak-7", "first-blood"],
     avatarColor: "#3b82f6",
+    avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 6,
@@ -84,6 +89,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "TCS",
     badgeIds: ["dsa-hero", "resume-warrior", "first-blood"],
     avatarColor: "#8b5cf6",
+    avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 7,
@@ -98,25 +104,27 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Accenture",
     badgeIds: ["github-beast", "night-coder", "resume-warrior"],
     avatarColor: "#f97316",
+    avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 8,
     name: "Vikram Das",
-    college: "KIIT Bhubaneswar",
-    branch: "CSE",
-    state: "Odisha",
+    college: "IIIT Hyderabad",
+    branch: "ECE",
+    state: "Telangana",
     year: "4",
-    score: 72,
-    projects: 5,
-    xp: 9900,
-    offer: "Wipro",
-    badgeIds: ["first-blood", "resume-warrior"],
+    score: 71,
+    projects: 8,
+    xp: 9500,
+    offer: "Uber",
+    badgeIds: ["dsa-hero", "streak-7"],
     avatarColor: "#14b8a6",
+    avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 9,
-    name: "Meera Nair",
-    college: "CET Kerala",
+    name: "Karthik Pillai",
+    college: "CUSAT Kochi",
     branch: "CSE",
     state: "Kerala",
     year: "4",
@@ -126,6 +134,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "Startup",
     badgeIds: ["first-blood", "night-coder"],
     avatarColor: "#ef4444",
+    avatarUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80",
   },
   {
     rank: 10,
@@ -140,15 +149,16 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     offer: "IBM",
     badgeIds: ["first-blood"],
     avatarColor: "#6b7280",
+    avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80",
   },
 ];
 
 export const SOCIAL_PROOF_DATA: SocialProofEntry[] = [
-  { name: "Rohit Patel", college: "LNCT Bhopal", branch: "CSE", beforeScore: 84, afterScore: 32, company: "TCS Digital", role: "SDE" },
-  { name: "Sourav Ray", college: "Brainware Univ", branch: "CSE", beforeScore: 91, afterScore: 20, company: "Accenture", role: "Analyst" },
-  { name: "Ananya Roy", college: "BITS Pilani", branch: "CS", beforeScore: 76, afterScore: 15, company: "Y Combinator Startup", role: "Backend Dev" },
-  { name: "Kiran Sharma", college: "VIT Vellore", branch: "IT", beforeScore: 88, afterScore: 24, company: "Infosys", role: "SDE-1" },
-  { name: "Divya Nair", college: "CET Kerala", branch: "ECE", beforeScore: 79, afterScore: 18, company: "Wipro Turbo", role: "Developer" },
+  { name: "Rohit Patel", college: "LNCT Bhopal", branch: "CSE", beforeScore: 84, afterScore: 32, company: "TCS Digital", role: "SDE", avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80" },
+  { name: "Sourav Ray", college: "Brainware Univ", branch: "CSE", beforeScore: 91, afterScore: 20, company: "Accenture", role: "Analyst", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" },
+  { name: "Ananya Roy", college: "BITS Pilani", branch: "CS", beforeScore: 76, afterScore: 15, company: "Y Combinator Startup", role: "Backend Dev", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80" },
+  { name: "Kiran Sharma", college: "VIT Vellore", branch: "IT", beforeScore: 88, afterScore: 24, company: "Infosys", role: "SDE-1", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" },
+  { name: "Divya Nair", college: "CET Kerala", branch: "ECE", beforeScore: 79, afterScore: 18, company: "Wipro Turbo", role: "Developer", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" },
 ];
 
 export const MARQUEE_STATS = [

@@ -8,6 +8,8 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  Timestamp,
+  FieldValue,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -19,16 +21,16 @@ export interface UserTask {
   completed: boolean;
   xpReward: number;
   dueDate?: string;
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: Timestamp | FieldValue | string;
+  updatedAt?: Timestamp | FieldValue | string;
 }
 
 export interface WorkSubmission {
   id?: string;
   type: "daily_challenge" | "meme" | "referral_request" | "ambassador_app" | "placement_story" | "project" | "assessment";
   title: string;
-  payload: any;
-  createdAt?: any;
+  payload: Record<string, unknown>;
+  createdAt?: Timestamp | FieldValue | string;
 }
 
 // Local Storage Fallback Key Generator for User Tasks

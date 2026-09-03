@@ -43,7 +43,15 @@ export default function ResumePage() {
     await new Promise((r) => setTimeout(r, 2400));
     clearInterval(interval);
 
-    const roast = generateResumeRoast(file.name);
+    let roast;
+    try {
+      roast = await generateResumeRoast(file.name);
+    } catch (err) {
+      console.error("Resume roast API failed:", err);
+      setLoading(false);
+      return;
+    }
+
     setResult(roast);
     window.localStorage.setItem("bec-resume-score", JSON.stringify(roast));
     setLoading(false);
