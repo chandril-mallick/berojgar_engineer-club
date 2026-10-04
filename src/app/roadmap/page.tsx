@@ -23,15 +23,14 @@ import {
   Flame, 
   RotateCcw, 
   Check, 
-  Target, 
+  Target,
   Cpu,
   Clock,
-  Terminal,
-  ExternalLink,
   ChevronDown,
   Building2,
   Rocket,
-  FileCheck
+  FileCheck,
+  Play
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,215 +39,22 @@ import { Progress } from "@/components/ui/progress";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { UserXP, ScoreResult } from "@/types";
 import { DEFAULT_USER_XP, awardXP } from "@/lib/xp";
+import { ROADMAP_TRACKS, type RoadmapTrack, type RoadmapStep, type RoadmapTask } from "@/lib/roadmap-data";
+import { recommendTrack } from "@/lib/roadmap-recommend";
+import { logProgress } from "@/lib/progress";
+import { useAuth } from "@/components/providers/auth-provider";
 
-interface RoadmapStep {
-  id: string;
-  title: string;
-  duration: string;
-  tag: string;
-  description: string;
-  tasks: { id: string; text: string; link?: string; linkText?: string }[];
-  proTip: string;
-}
-
-interface RoadmapTrack {
-  id: string;
-  name: string;
-  badge: string;
-  icon: LucideIcon;
-  description: string;
-  targetRole: string;
-  estimatedDuration: string;
-  steps: RoadmapStep[];
-}
-
-const ROADMAP_TRACKS: RoadmapTrack[] = [
-  {
-    id: "90-day-sde",
-    name: "90-Day Placement Masterplan",
-    badge: "Most Popular",
-    icon: Target,
-    description: "Brutal, zero-fluff 3-month action plan engineered for Tier-3 students to crack product SDE roles.",
-    targetRole: "SDE-1 / Frontend / Backend Engineer",
-    estimatedDuration: "12 Weeks (15-20 hrs/week)",
-    steps: [
-      {
-        id: "step-1-dsa",
-        title: "Phase 1: Core Problem Solving & DSA Sprints",
-        duration: "Weeks 1 - 4",
-        tag: "Foundation",
-        description: "Master high-yield DSA patterns asked in 80%+ technical screening tests.",
-        tasks: [
-          { id: "task-dsa-1", text: "Master Arrays & HashMaps (Two Pointers, Sliding Window, Prefix Sum)", link: "/real-world-dsa", linkText: "Practice in Lab" },
-          { id: "task-dsa-2", text: "Solve 25 High-Frequency Medium DSA problems independently" },
-          { id: "task-dsa-3", text: "Master Trees & Graphs (BFS/DFS traversal patterns)", link: "/daily-challenge", linkText: "Daily Grind" },
-          { id: "task-dsa-4", text: "Time & Space complexity analysis for every solution (Big-O)" },
-        ],
-        proTip: "Do not watch 3-hour video tutorials without coding. Write code on paper or IDE within 20 mins."
-      },
-      {
-        id: "step-2-project",
-        title: "Phase 2: Production-Grade Project & GitHub Proof",
-        duration: "Weeks 5 - 8",
-        tag: "Proof of Work",
-        description: "Build 1 non-generic, full-stack application that recruiters can actually test live.",
-        tasks: [
-          { id: "task-proj-1", text: "Ship a full-stack project with Auth, DB, and live API endpoints", link: "/real-world-dsa", linkText: "System Architecture" },
-          { id: "task-proj-2", text: "Deploy live demo on Vercel/Render with custom domain or HTTPS" },
-          { id: "task-proj-3", text: "Write impressive GitHub README with Architecture Diagram & Setup Guide" },
-          { id: "task-proj-4", text: "Record 90-second video demo walk-through for LinkedIn" },
-        ],
-        proTip: "Avoid generic Todo Apps or Weather Apps. Build tools that solve real problems (e.g. queue managers, analytics dashboards)."
-      },
-      {
-        id: "step-3-resume",
-        title: "Phase 3: Resume Roast & ATS System Optimization",
-        duration: "Weeks 9 - 10",
-        tag: "Packaging",
-        description: "Transform your resume into a recruiter magnet scoring 85+ on ATS metrics.",
-        tasks: [
-          { id: "task-res-1", text: "Run BEC AI Resume Roast & fix all flagged high-risk issues", link: "/resume", linkText: "Roast Resume" },
-          { id: "task-res-2", text: "Format bullets using X-Y-Z formula: Accomplished [X] measured by [Y] using [Z]" },
-          { id: "task-res-3", text: "Ensure single-page clean Single-Column layout (no double columns)" },
-          { id: "task-res-4", text: "Hyperlink live GitHub repos and live project URLs directly" },
-        ],
-        proTip: "Recruiters spend only 6 seconds on initial scanning. Keep metrics bold and quantifiable."
-      },
-      {
-        id: "step-4-interviews",
-        title: "Phase 4: Cold Outreach & Mock Interview Velocity",
-        duration: "Weeks 11 - 12",
-        tag: "Conversion",
-        description: "Convert preparation into interview calls via targeted reachouts & STAR storytelling.",
-        tasks: [
-          { id: "task-int-1", text: "Prepare 5 STAR stories for behavioral & leadership rounds" },
-          { id: "task-int-2", text: "Send 10 targeted referral requests daily to SDE-1 alumni on LinkedIn", link: "/referrals", linkText: "Referral Queue" },
-          { id: "task-int-3", text: "Conduct 3 mock technical interviews with peer feedback" },
-          { id: "task-int-4", text: "Maintain daily application tracking sheet (Applied, Follow-up, Interview)" },
-        ],
-        proTip: "Never send generic 'Hi sir give referral' messages. Send a 3-line pitch + live link + job ID."
-      }
-    ]
-  },
-  {
-    id: "fullstack-web",
-    name: "Full-Stack Web Architecture Track",
-    badge: "High Demand",
-    icon: Code2,
-    description: "Complete blueprint to become a production-ready Full Stack Engineer building modern web apps.",
-    targetRole: "Frontend / Full-Stack Engineer (React, Node, Next.js)",
-    estimatedDuration: "14 Weeks",
-    steps: [
-      {
-        id: "fs-1",
-        title: "Level 1: Modern Web Core & TypeScript Mastery",
-        duration: "Weeks 1 - 3",
-        tag: "Frontend Core",
-        description: "Master modern HTML5, CSS layout engines, JavaScript ES6+ & strict TypeScript types.",
-        tasks: [
-          { id: "fs-task-1", text: "Deep dive into JS Async/Await, Event Loop, Closures, and Promises" },
-          { id: "fs-task-2", text: "Convert JS codebase to strict TypeScript with interfaces & generics" },
-          { id: "fs-task-3", text: "Master TailwindCSS responsive layouts & modern CSS grid/flexbox" },
-        ],
-        proTip: "TypeScript is standard in product teams. Avoid `any` types at all costs."
-      },
-      {
-        id: "fs-2",
-        title: "Level 2: Next.js App Router & Full Stack Data Layer",
-        duration: "Weeks 4 - 8",
-        tag: "Framework & DB",
-        description: "Build high-performance web apps with Server Components, Server Actions, & Relational DBs.",
-        tasks: [
-          { id: "fs-task-4", text: "Master Next.js App Router, Server Components, and API Routes" },
-          { id: "fs-task-5", text: "Design Relational Schema in PostgreSQL using Prisma/Drizzle ORM" },
-          { id: "fs-task-6", text: "Implement OAuth2 & JWT Session Authentication securely" },
-        ],
-        proTip: "Understand client vs server component boundaries in Next.js to avoid bundle size bloat."
-      },
-      {
-        id: "fs-3",
-        title: "Level 3: Scalability, Caching & DevOps",
-        duration: "Weeks 9 - 14",
-        tag: "Production Ready",
-        description: "Scale applications with Redis caching, WebSockets, Docker, and CI/CD pipelines.",
-        tasks: [
-          { id: "fs-task-7", text: "Add Redis layer for rate-limiting and query result caching" },
-          { id: "fs-task-8", text: "Containerize application using Docker multi-stage builds" },
-          { id: "fs-task-9", text: "Set up automated GitHub Actions workflow for linting, testing & deployment" },
-        ],
-        proTip: "Deploying a containerized app demonstrates mid-level engineering maturity to hiring managers."
-      }
-    ]
-  },
-  {
-    id: "company-speedrun",
-    name: "Target Company Playbooks",
-    badge: "Company Specific",
-    icon: Building2,
-    description: "Tailored preparation strategies for Tier-1 Product Tech, High-Growth Startups & IT Services.",
-    targetRole: "Amazon, Swiggy, Razorpay, Infosys SP, TCS Digital",
-    estimatedDuration: "4 - 8 Weeks",
-    steps: [
-      {
-        id: "comp-1",
-        title: "Tier-1 Product Giants (Amazon, Swiggy, Flipkart)",
-        duration: "4 - 6 Weeks",
-        tag: "Product Tech",
-        description: "Focused strategy for heavy DSA screenings, System Design basics, & STAR interviews.",
-        tasks: [
-          { id: "comp-task-1", text: "Solve Top 50 Amazon/Swiggy tagged DSA questions (PriorityQueue, Trees, BFS)" },
-          { id: "comp-task-2", text: "Draft 2 STAR stories for each Leadership Principle (Customer Obsession, Ownership)" },
-          { id: "comp-task-3", text: "Study High Level Design basics: Load Balancers, Database Sharding, Caching" },
-        ],
-        proTip: "At Amazon, behavioral questions carry equal weight as coding. Prepare structured STAR responses."
-      },
-      {
-        id: "comp-2",
-        title: "High-Growth Startups (Razorpay, Zerodha, CRED)",
-        duration: "3 - 4 Weeks",
-        tag: "Speed & Execution",
-        description: "Cracking fast-paced startups where live execution & GitHub proof matter most.",
-        tasks: [
-          { id: "comp-task-4", text: "Build a mini project demonstrating clean architecture & unit tests" },
-          { id: "comp-task-5", text: "Practice machine coding rounds (build a feature live in 90 minutes)" },
-          { id: "comp-task-6", text: "Direct message CTOs / Tech Leads on X/LinkedIn with specific code feedback" },
-        ],
-        proTip: "Startups care about how fast you ship high-quality code. Show live links and clean code repos."
-      },
-      {
-        id: "comp-3",
-        title: "Service Giants Premium Track (Infosys SP, TCS Digital, Wipro Turbo)",
-        duration: "2 - 3 Weeks",
-        tag: "Mass Recruiter Premium",
-        description: "Target 7-10 LPA premium roles in service companies via special coding contests.",
-        tasks: [
-          { id: "comp-task-7", text: "Master SQL queries (Joins, Aggregations, Group By, Subqueries)" },
-          { id: "comp-task-8", text: "Solve HackWithInfy / TCS CodeVita previous year advanced coding problems" },
-          { id: "comp-task-9", text: "Brush up Core CS fundamentals (OOPs, DBMS, Operating Systems, Computer Networks)" },
-        ],
-        proTip: "InfyTQ / HackWithInfy top performers skip standard rounds directly to 9.5 LPA SP interviews."
-      }
-    ]
-  }
-];
-
-const DEFAULT_SCORE_RESULT: ScoreResult = {
-  score: 42,
-  riskLevel: "HIGH",
-  careerType: "Tier-3 Engineering Student",
-  roast: "Solid start, but your portfolio lacks live proof and your resume ATS score needs optimization.",
-  strengths: ["Basic DSA logic", "Good enthusiasm"],
-  weaknesses: ["No live project URL", "Low ATS resume score", "Zero mock interview practice"],
-  biggestGap: "Interview readiness",
-  strongestArea: "DSA Fundamentals"
-};
+const DEFAULT_SCORE_RESULT: ScoreResult | null = null;
 
 export default function RoadmapPage() {
+  const { user } = useAuth();
   const [userXP, setUserXP] = useLocalStorage<UserXP>("bec-user-xp", DEFAULT_USER_XP);
-  const [scoreResult] = useLocalStorage<ScoreResult>("bec-score-result", DEFAULT_SCORE_RESULT);
+  const [scoreResult] = useLocalStorage<ScoreResult | null>("bec-score-result", DEFAULT_SCORE_RESULT);
   const [completedTasks, setCompletedTasks] = useLocalStorage<string[]>("bec-roadmap-completed-tasks", []);
+  const [startDates, setStartDates] = useLocalStorage<Record<string, string>>("bec-roadmap-start-date", {});
   
-  const [activeTrackId, setActiveTrackId] = useState<string>("90-day-sde");
+  const recommendation = useMemo(() => recommendTrack(scoreResult), [scoreResult]);
+  const [activeTrackId, setActiveTrackId] = useState<string>(recommendation.trackId || "90-day-sde");
   const [academicYear, setAcademicYear] = useState<"1-2" | "3" | "4">("4");
   const [dailyHours, setDailyHours] = useState<"1-2" | "3-4" | "6+">("3-4");
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null);
@@ -286,6 +92,13 @@ export default function RoadmapPage() {
       const updatedXP = awardXP("challenge_complete", userXP, `Milestone: ${taskText.slice(0, 30)}...`);
       setUserXP(updatedXP);
       
+      logProgress(user?.uid || null, {
+        type: "roadmap",
+        refId: taskId,
+        title: `Roadmap: ${taskText.slice(0, 30)}...`,
+        xpEarned: 50,
+      });
+
       showToast(`🎉 Milestone Completed! +50 XP Earned.`);
     }
   };
@@ -322,6 +135,30 @@ export default function RoadmapPage() {
 
     return { focus, breakdown, dailyPlan };
   }, [academicYear, dailyHours]);
+
+  // Handle plan start
+  const handleStartPlan = () => {
+    setStartDates(prev => ({
+      ...prev,
+      [activeTrackId]: new Date().toISOString()
+    }));
+    showToast(`Started ${activeTrack.name}! Check your week-by-week progress.`);
+  };
+
+  const handleRestartPlan = () => {
+    if (confirm("Are you sure you want to restart this plan? Your completed tasks will remain, but the start date will reset.")) {
+      setStartDates(prev => ({
+        ...prev,
+        [activeTrackId]: new Date().toISOString()
+      }));
+    }
+  };
+
+  const trackStartDate = startDates[activeTrackId] ? new Date(startDates[activeTrackId]) : null;
+  const daysSinceStart = trackStartDate ? Math.floor((new Date().getTime() - trackStartDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+  const currentWeek = trackStartDate ? Math.max(1, Math.ceil((daysSinceStart + 1) / 7)) : 0;
+  
+  const isOverdue = trackStartDate && daysSinceStart > 7 && trackProgressPercent < 25;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
@@ -509,19 +346,24 @@ export default function RoadmapPage() {
             {ROADMAP_TRACKS.map((track) => {
               const Icon = track.icon;
               const isActive = activeTrackId === track.id;
+              const isRecommended = recommendation.trackId === track.id;
 
               return (
                 <button
                   key={track.id}
                   onClick={() => setActiveTrackId(track.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+                  className={`flex flex-col sm:flex-row items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap relative ${
                     isActive
                       ? "bg-foreground text-white shadow-xs"
                       : "text-muted hover:text-foreground hover:bg-white"
                   }`}
                 >
+                  {isRecommended && !scoreResult && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span></span>}
                   <Icon size={14} className={isActive ? "text-amber-400" : ""} />
-                  <span>{track.name}</span>
+                  <div className="flex flex-col items-start">
+                    <span>{track.name}</span>
+                    {isRecommended && scoreResult && <span className="text-[9px] text-amber-500 uppercase tracking-wider font-mono">Recommended</span>}
+                  </div>
                 </button>
               );
             })}
@@ -557,13 +399,73 @@ export default function RoadmapPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted border-t border-border pt-4">
             <span className="flex items-center gap-1">
               <Target size={14} className="text-amber-500" />
               <strong>Target Roles:</strong> {activeTrack.targetRole}
             </span>
           </div>
+
+          {/* Start Plan & Recommendation Logic */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+            {recommendation.trackId === activeTrack.id && scoreResult ? (
+              <div className="flex items-center gap-2 text-xs font-mono font-semibold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+                <Sparkles size={14} />
+                <span>{recommendation.reason}</span>
+              </div>
+            ) : (
+              <div />
+            )}
+            
+            <div className="flex items-center gap-3">
+              {trackStartDate ? (
+                <>
+                  {isOverdue && (
+                     <span className="text-xs text-rose-600 font-mono font-bold bg-rose-50 px-2 py-1 rounded border border-rose-200 hidden sm:block">Plans slip — keep going or restart?</span>
+                  )}
+                  <Badge variant="dark" className="font-mono">
+                    Week {currentWeek} of 12
+                  </Badge>
+                  <Button variant="ghost" size="sm" onClick={handleRestartPlan} className="h-8 text-xs font-bold gap-1 border border-border">
+                    <RotateCcw size={14} />
+                    Restart
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={handleStartPlan} className="h-8 text-xs font-bold gap-1 bg-amber-500 hover:bg-amber-600 text-white">
+                  <Play size={14} />
+                  Start Plan
+                </Button>
+              )}
+            </div>
+          </div>
         </Card>
+
+        {/* Priority Callout */}
+        {recommendation.trackId === activeTrack.id && scoreResult && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-amber-50/50 border border-amber-200 rounded-xl p-5 space-y-3">
+             <h4 className="font-heading text-sm font-bold text-amber-900 flex items-center gap-2">
+               <Target size={16} className="text-amber-600" />
+               Start with these first ({recommendation.weakestDimension.toUpperCase()} Focus)
+             </h4>
+             <ul className="space-y-2">
+               {activeTrack.steps.flatMap(s => s.tasks)
+                 .filter(t => t.targets?.includes(recommendation.weakestDimension))
+                 .slice(0, 4)
+                 .map(t => (
+                   <li key={`target-${t.id}`} className="text-xs font-mono text-amber-800 flex items-center gap-2">
+                     <ArrowRight size={12} className="text-amber-500 shrink-0" />
+                     <span className="truncate">{t.text}</span>
+                     {!completedTasks.includes(t.id) ? (
+                       <Badge variant="default" className="ml-auto text-[9px] border-amber-200 text-amber-600 py-0 hidden sm:flex bg-amber-50">To Do</Badge>
+                     ) : (
+                       <Badge variant="success" className="ml-auto text-[9px] py-0 hidden sm:flex">Done</Badge>
+                     )}
+                   </li>
+               ))}
+             </ul>
+          </motion.div>
+        )}
 
         {/* ── Interactive Steps Timeline ── */}
         <div className="space-y-6 relative before:absolute before:left-4 sm:before:left-6 before:top-4 before:bottom-4 before:w-0.5 before:bg-border">

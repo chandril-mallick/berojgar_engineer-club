@@ -5,7 +5,7 @@ import { collection, doc, setDoc } from "firebase/firestore";
 
 export interface ProgressEntry {
   id: string;
-  type: "dsa-lab" | "daily-grind";
+  type: "dsa-lab" | "daily-grind" | "roadmap";
   refId: string;
   title: string;
   difficulty?: "Easy" | "Medium" | "Hard" | "Unknown" | string;

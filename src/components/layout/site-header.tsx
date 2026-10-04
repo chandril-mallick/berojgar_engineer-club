@@ -103,7 +103,6 @@ export function SiteHeader() {
     { label: "Daily Grind", href: "/daily-challenge", icon: Flame },
     { label: "Career Roadmap", href: "/roadmap", icon: Compass },
     { label: "DSA Lab", href: "/real-world-dsa", icon: Code },
-    { label: "Projects", href: "/real-world-dsa", icon: Rocket },
   ];
 
   const communityItems: DropdownItem[] = [
@@ -119,7 +118,6 @@ export function SiteHeader() {
     { label: "College Rankings", href: "/leaderboard", icon: GraduationCap },
     { label: "Branch Rankings", href: "/leaderboard", icon: GraduationCap },
     { label: "Company Rankings", href: "/offer-wall", icon: Building },
-    { label: "Hackathon Rankings", href: "/achievements", icon: Award },
     { label: "About", href: "/about", icon: Info },
   ];
 
@@ -161,19 +159,7 @@ export function SiteHeader() {
               Reality Check
             </Link>
 
-            {/* 2. Profile Nav Link */}
-            <Link
-              href="/profile"
-              className={cn(
-                "px-3 py-2 border transition-colors select-none flex items-center gap-1.5",
-                pathname === "/profile"
-                  ? "bg-black text-white border-black font-extrabold"
-                  : "border-transparent text-foreground/80 hover:text-foreground hover:border-border"
-              )}
-            >
-              <User size={13} />
-              <span>Profile</span>
-            </Link>
+           
 
             {/* 3. Practice Dropdown */}
             <div className="relative">
@@ -336,6 +322,7 @@ export function SiteHeader() {
                 )}
               </AnimatePresence>
             </div>
+
 
           </nav>
         </div>
