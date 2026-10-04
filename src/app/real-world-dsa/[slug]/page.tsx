@@ -37,6 +37,7 @@ import { UserXP } from "@/types";
 import { DEFAULT_USER_XP, awardXP } from "@/lib/xp";
 import { useAuth } from "@/hooks/use-auth";
 import { saveUserTask } from "@/lib/firestore-service";
+import { logProgress } from "@/lib/progress";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -149,7 +150,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
   const [sourceCode, setSourceCode] = useState<string>(
     STARTER_TEMPLATES[71]
   );
-  const [customStdin, setCustomStdin] = useState<string>(challenge.publicTestCases[0]?.input || "");
+  const [customStdin, setCustomStdin] = useState<string>(challenge.publicTestCases?.[0]?.input || "");
 
   // Execution & Test states
   const [executing, setExecuting] = useState<boolean>(false);
@@ -211,7 +212,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
     setSubmissionStatus("idle");
     setRunResult(null);
 
-    const activeInput = currentChallenge.publicTestCases[activeCaseIndex]?.input || customStdin;
+    const activeInput = currentChallenge.publicTestCases?.[activeCaseIndex]?.input || customStdin;
 
     try {
       const res = await runCodeOnJudge0(sourceCode, selectedLangId, activeInput);
@@ -235,8 +236,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
     setTestResults([]);
 
     const allTestCases: TestCase[] = [
-      ...currentChallenge.publicTestCases,
-      ...currentChallenge.hiddenTestCases,
+      ...(currentChallenge.publicTestCases || []),
+      ...(currentChallenge.hiddenTestCases || []),
     ];
 
     setTotalCasesCount(allTestCases.length);
@@ -309,6 +310,14 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
             pointsEarned: 100,
           });
         }
+
+        logProgress(user?.uid || null, {
+          type: "dsa-lab",
+          refId: currentChallenge.slug,
+          title: currentChallenge.title,
+          difficulty: currentChallenge.difficulty,
+          xpEarned: 100
+        });
       }
 
       setSubmissionsHistory((history) => [
@@ -354,7 +363,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
   }, [sourceCode, selectedLangId, customStdin]);
 
   const handleCopyFullSolution = () => {
-    const fullSolution = challenge.starterCode[selectedLangId] || challenge.starterCode[71];
+    const fullSolution = challenge.starterCode?.[selectedLangId] || challenge.starterCode?.[71] || "";
     navigator.clipboard.writeText(fullSolution);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
@@ -554,7 +563,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   Examples
                 </h3>
 
-                {challenge.publicTestCases.map((tc, idx) => (
+                {(challenge.publicTestCases || []).map((tc, idx) => (
                   <div
                     key={idx}
                     className="bg-surface border border-border rounded-xl p-4 space-y-2 font-mono text-xs select-none"
@@ -627,10 +636,10 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   {/* Concept & Why */}
                   <div className="bg-surface border border-border rounded-xl p-4 space-y-2">
                     <h3 className="text-xs font-bold text-emerald-700 font-mono uppercase">
-                      DSA Choice: {challenge.postSolutionExplanation.dsaUsed}
+                      DSA Choice: {challenge.postSolutionExplanation?.dsaUsed || "N/A"}
                     </h3>
                     <p className="text-xs text-foreground leading-relaxed">
-                      {challenge.postSolutionExplanation.why}
+                      {challenge.postSolutionExplanation?.why || "N/A"}
                     </p>
                   </div>
 
@@ -639,13 +648,13 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                     <div className="bg-surface border border-border p-3 rounded-xl">
                       <div className="text-muted">Time Complexity</div>
                       <div className="text-base font-bold text-foreground mt-1">
-                        {challenge.postSolutionExplanation.timeComplexity}
+                        {challenge.postSolutionExplanation?.timeComplexity || "N/A"}
                       </div>
                     </div>
                     <div className="bg-surface border border-border p-3 rounded-xl">
                       <div className="text-muted">Space Complexity</div>
                       <div className="text-base font-bold text-foreground mt-1">
-                        {challenge.postSolutionExplanation.spaceComplexity}
+                        {challenge.postSolutionExplanation?.spaceComplexity || "N/A"}
                       </div>
                     </div>
                   </div>
@@ -656,7 +665,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                       Production Applications
                     </h4>
                     <ul className="space-y-1.5 text-xs text-foreground">
-                      {challenge.postSolutionExplanation.realWorldApplications.map((app, i) => (
+                      {(challenge.postSolutionExplanation?.realWorldApplications || []).map((app, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <span className="text-emerald-600 font-bold">&bull;</span>
                           <span>{app}</span>
@@ -671,7 +680,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                       Full Reference Code Solution
                     </h4>
                     <pre className="bg-foreground border border-foreground p-4 rounded-xl text-xs font-mono text-surface overflow-x-auto leading-relaxed shadow-sm">
-                      {challenge.starterCode[selectedLangId] || challenge.starterCode[71]}
+                      {challenge.starterCode?.[selectedLangId] || challenge.starterCode?.[71] || ""}
                     </pre>
                   </div>
                 </div>
@@ -851,7 +860,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   <div className="space-y-3">
                     {/* Case Buttons */}
                     <div className="flex items-center gap-2">
-                      {challenge.publicTestCases.map((_, idx) => (
+                      {(challenge.publicTestCases || []).map((_, idx) => (
                         <button
                           key={idx}
                           onClick={() => setActiveCaseIndex(idx)}

@@ -80,6 +80,23 @@ export function ActivityHeatmap({ streak, totalXP, completedCount, userXP }: Act
       // ignore
     }
 
+    // 2.5 Process Unified Progress Log
+    try {
+      const progressLog = localStorage.getItem("bec-progress-log");
+      if (progressLog) {
+        const parsed = JSON.parse(progressLog);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((entry: any) => {
+            if (entry.completedAt) {
+              incrementDate(entry.completedAt, 1);
+            }
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     // 3. Process completed challenges & active streak days
     if (streak > 0) {
       const today = new Date();

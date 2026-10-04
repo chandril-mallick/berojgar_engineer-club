@@ -343,6 +343,6 @@ export default function CookiesPage() {
           </Link>
         </p>
       </section>
-    </div>
+    </PageContainer>
   );
 }

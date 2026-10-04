@@ -901,6 +901,13 @@ export const DAILY_CHALLENGE_DATA: DailyChallengeSet = {
     difficulty: "Medium",
     description: "Given n non-negative integers height[i] where each represents a point at coordinate (i, height[i]). Find two lines that together with the x-axis form a container containing the most water.",
     codeTemplate: `function maxArea(height) {\n  // Write your O(N) Two-Pointer solution here\n  let maxWater = 0;\n  let left = 0;\n  let right = height.length - 1;\n  \n  while (left < right) {\n    let minH = Math.min(height[left], height[right]);\n    maxWater = Math.max(maxWater, minH * (right - left));\n    if (height[left] < height[right]) left++;\n    else right--;\n  }\n  return maxWater;\n}`,
+    starterCode: {
+      71: `def maxArea(height):\n    # Write your O(N) Two-Pointer solution here\n    pass\n\n# Test execution\nprint(maxArea([1,8,6,2,5,4,8,3,7]))`,
+      54: `#include <iostream>\n#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nint maxArea(vector<int>& height) {\n    // Write your O(N) Two-Pointer solution here\n    return 0;\n}\n\nint main() {\n    vector<int> h = {1,8,6,2,5,4,8,3,7};\n    cout << maxArea(h) << endl;\n    return 0;\n}`,
+      62: `import java.util.*;\n\npublic class Main {\n    public static int maxArea(int[] height) {\n        // Write your O(N) Two-Pointer solution here\n        return 0;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(maxArea(new int[]{1,8,6,2,5,4,8,3,7}));\n    }\n}`,
+      63: `function maxArea(height) {\n  // Write your O(N) Two-Pointer solution here\n  let maxWater = 0;\n  let left = 0;\n  let right = height.length - 1;\n  \n  while (left < right) {\n    let minH = Math.min(height[left], height[right]);\n    maxWater = Math.max(maxWater, minH * (right - left));\n    if (height[left] < height[right]) left++;\n    else right--;\n  }\n  return maxWater;\n}\n\nconsole.log(maxArea([1,8,6,2,5,4,8,3,7]));`,
+      60: `package main\n\nimport "fmt"\n\nfunc maxArea(height []int) int {\n    // Write your O(N) Two-Pointer solution here\n    return 0\n}\n\nfunc main() {\n    fmt.Println(maxArea([]int{1,8,6,2,5,4,8,3,7}))\n}`
+    },
     testCases: [
       { input: "[1,8,6,2,5,4,8,3,7]", output: "49" },
       { input: "[1,1]", output: "1" },

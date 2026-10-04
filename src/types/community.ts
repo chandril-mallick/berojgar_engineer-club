@@ -232,6 +232,7 @@ export interface DailyChallengeSet {
     difficulty: "Easy" | "Medium" | "Hard";
     description: string;
     codeTemplate: string;
+    starterCode?: Record<number, string>;
     testCases: { input: string; output: string }[];
     solutionExplanation: string;
   };

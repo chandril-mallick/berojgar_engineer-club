@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { DEFAULT_USER_XP, awardXP, getLevelInfo, getLevelProgress } from "@/lib/xp";
+import { getStats, ProgressStats } from "@/lib/progress";
 import { ALL_BADGES, getBadgeById, RARITY_COLORS } from "@/lib/achievements";
 import { UserXP, BadgeDefinition, ScoreResult } from "@/types";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -58,6 +59,20 @@ export default function ProfilePage() {
 
   const [completedSlugs] = useLocalStorage<string[]>("bec-rwdsa-completed", []);
   const [offerStatus, setOfferStatus] = useState("Actively Hunting");
+  
+  // Unified Stats
+  const [progressStats, setProgressStats] = useState<ProgressStats>({
+    totalXP: 0,
+    streak: 0,
+    dsaStats: { total: 0, Easy: 0, Medium: 0, Hard: 0 },
+    dailyGrindCount: 0,
+  });
+
+  import("react").then(({ useEffect }) => {
+    useEffect(() => {
+      setProgressStats(getStats());
+    }, []);
+  });
   
   // Badge Filter State & Selected Badge Modal
   const [selectedRarity, setSelectedRarity] = useState<string>("all");
@@ -181,11 +196,11 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
             <div className="p-3 rounded-xl bg-surface border border-border">
               <p className="text-muted text-[10px] uppercase font-bold">Daily Streak</p>
-              <p className="text-base font-bold text-foreground mt-0.5">{userXP.streak} Days 🔥</p>
+              <p className="text-base font-bold text-foreground mt-0.5">{progressStats.streak} Days 🔥</p>
             </div>
             <div className="p-3 rounded-xl bg-surface border border-border">
               <p className="text-muted text-[10px] uppercase font-bold">Solved Labs</p>
-              <p className="text-base font-bold text-emerald-600 mt-0.5">{completedSlugs.length} Solved</p>
+              <p className="text-base font-bold text-emerald-600 mt-0.5">{progressStats.dsaStats.total} Solved</p>
             </div>
             <div className="p-3 rounded-xl bg-surface border border-border">
               <p className="text-muted text-[10px] uppercase font-bold">Badges</p>
@@ -200,12 +215,47 @@ export default function ProfilePage() {
 
       </div>
 
+      {/* ── 2.5 Coding Activity & DSA Stats ── */}
+      <section className="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-6">
+        <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2 pb-3 border-b border-border">
+          <Code2 size={18} className="text-emerald-500" />
+          <span>DSA Lab &amp; Daily Grind Stats</span>
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
+            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Easy</p>
+            <p className="text-xl font-bold text-emerald-600">{progressStats.dsaStats.Easy}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
+            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Medium</p>
+            <p className="text-xl font-bold text-amber-500">{progressStats.dsaStats.Medium}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
+            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Hard</p>
+            <p className="text-xl font-bold text-red-500">{progressStats.dsaStats.Hard}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
+            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Daily Grinds</p>
+            <p className="text-xl font-bold text-foreground">{progressStats.dailyGrindCount}</p>
+          </div>
+        </div>
+        {progressStats.dsaStats.total === 0 && progressStats.dailyGrindCount === 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 flex items-start gap-3">
+            <Flame className="shrink-0 mt-0.5" size={16} />
+            <div>
+              <p className="font-bold">No coding activity yet.</p>
+              <p className="mt-1 opacity-80">Start your journey in the <Link href="/real-world-dsa" className="underline font-semibold">DSA Lab</Link> or complete today's Daily Grind on the dashboard to build your streak!</p>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* ── 3. Daily Grind & Contribution Heatmap ── */}
       <section>
         <ActivityHeatmap
-          streak={userXP.streak}
+          streak={progressStats.streak || userXP.streak}
           totalXP={userXP.total}
-          completedCount={completedSlugs.length}
+          completedCount={progressStats.dsaStats.total || completedSlugs.length}
           userXP={userXP}
         />
       </section>

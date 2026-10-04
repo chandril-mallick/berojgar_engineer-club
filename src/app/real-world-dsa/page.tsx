@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { REAL_WORLD_DSA_CHALLENGES } from "@/lib/real-world-dsa-data";
+import { RealWorldDSAChallenge, REAL_WORLD_DSA_CHALLENGES } from "@/lib/real-world-dsa-data";
+import { getDSAChallenges } from "@/app/actions/dsa";
 import { motion } from "framer-motion";
 import { 
   CheckCircle2, 
@@ -32,26 +33,34 @@ export default function RealWorldDSAProblemsetPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  const totalCount = REAL_WORLD_DSA_CHALLENGES.length;
+  const [challengesList, setChallengesList] = useState<RealWorldDSAChallenge[]>(REAL_WORLD_DSA_CHALLENGES);
+  
+  useEffect(() => {
+    getDSAChallenges().then(data => {
+      setChallengesList(data);
+    }).catch(console.error);
+  }, []);
+
+  const totalCount = challengesList.length;
   const completedCount = completedSlugs.length;
 
-  const easyCount = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Easy").length;
-  const easySolved = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Easy" && completedSlugs.includes(c.slug)).length;
+  const easyCount = challengesList.filter(c => c.difficulty === "Easy").length;
+  const easySolved = challengesList.filter(c => c.difficulty === "Easy" && completedSlugs.includes(c.slug)).length;
 
-  const mediumCount = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Medium").length;
-  const mediumSolved = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Medium" && completedSlugs.includes(c.slug)).length;
+  const mediumCount = challengesList.filter(c => c.difficulty === "Medium").length;
+  const mediumSolved = challengesList.filter(c => c.difficulty === "Medium" && completedSlugs.includes(c.slug)).length;
 
-  const hardCount = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Hard").length;
-  const hardSolved = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Hard" && completedSlugs.includes(c.slug)).length;
+  const hardCount = challengesList.filter(c => c.difficulty === "Hard").length;
+  const hardSolved = challengesList.filter(c => c.difficulty === "Hard" && completedSlugs.includes(c.slug)).length;
 
   // Filtered Challenges
   const filteredChallenges = useMemo(() => {
-    return REAL_WORLD_DSA_CHALLENGES.filter((c) => {
+    return challengesList.filter((c) => {
       const matchesSearch =
         c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.dsaConcept.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.realWorldContext.toLowerCase().includes(searchQuery.toLowerCase());
+        (c.realWorldContext || "").toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesDiff = selectedDifficulty === "All" || c.difficulty === selectedDifficulty;
       
@@ -65,12 +74,12 @@ export default function RealWorldDSAProblemsetPage() {
 
       return matchesSearch && matchesDiff && matchesStatus && matchesCat;
     });
-  }, [searchQuery, selectedDifficulty, selectedStatus, selectedCategory, completedSlugs]);
+  }, [challengesList, searchQuery, selectedDifficulty, selectedStatus, selectedCategory, completedSlugs]);
 
   const categories = useMemo(() => {
-    const cats = Array.from(new Set(REAL_WORLD_DSA_CHALLENGES.map(c => c.category)));
+    const cats = Array.from(new Set(challengesList.map(c => c.category)));
     return ["All", ...cats];
-  }, []);
+  }, [challengesList]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 font-sans">
@@ -223,14 +232,30 @@ export default function RealWorldDSAProblemsetPage() {
 
                       {/* Problem Title & Short Description */}
                       <td className="py-4 px-4">
-                        <Link
-                          href={`/real-world-dsa/${challenge.slug}`}
-                          className="font-bold text-foreground hover:text-success transition-colors text-sm font-heading flex items-center gap-2"
-                        >
-                          <span>{idx + 1}. {challenge.title}</span>
-                        </Link>
-                        <p className="text-xs text-muted mt-0.5 line-clamp-1">
+                        {challenge.source === "codeforces" ? (
+                          <a
+                            href={challenge.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold text-foreground hover:text-success transition-colors text-sm font-heading flex items-center gap-2"
+                          >
+                            <span>{idx + 1}. {challenge.title}</span>
+                          </a>
+                        ) : (
+                          <Link
+                            href={`/real-world-dsa/${challenge.slug}`}
+                            className="font-bold text-foreground hover:text-success transition-colors text-sm font-heading flex items-center gap-2"
+                          >
+                            <span>{idx + 1}. {challenge.title}</span>
+                          </Link>
+                        )}
+                        <p className="text-xs text-muted mt-0.5 line-clamp-1 flex items-center gap-1.5">
                           {challenge.shortDescription}
+                          {challenge.source === "codeforces" && (
+                            <span className="inline-flex text-[9px] uppercase font-bold tracking-wider bg-surface border border-border px-1.5 rounded-sm">
+                              via Codeforces
+                            </span>
+                          )}
                         </p>
                       </td>
 
@@ -268,18 +293,27 @@ export default function RealWorldDSAProblemsetPage() {
 
                       {/* Action Button */}
                       <td className="py-4 px-4 text-right">
-                        <Link href={`/real-world-dsa/${challenge.slug}`}>
-                          <button
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all inline-flex items-center gap-1 ${
-                              isSolved
-                                ? "bg-surface hover:bg-border text-foreground border border-border"
-                                : "bg-foreground text-white hover:bg-foreground/85 shadow-xs"
-                            }`}
-                          >
-                            <span>{isSolved ? "Review" : "Solve"}</span>
-                            <ArrowRight size={12} />
-                          </button>
-                        </Link>
+                        {challenge.source === "codeforces" ? (
+                          <a href={challenge.url} target="_blank" rel="noopener noreferrer">
+                            <button className="bg-surface hover:bg-surface/80 border border-border text-foreground px-3 py-1.5 rounded-lg font-bold font-mono text-xs transition-colors group-hover:border-success/30 inline-flex items-center gap-1">
+                              <span>Solve on CF</span>
+                              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                          </a>
+                        ) : (
+                          <Link href={`/real-world-dsa/${challenge.slug}`}>
+                            <button
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all inline-flex items-center gap-1 ${
+                                isSolved
+                                  ? "bg-surface hover:bg-border text-foreground border border-border"
+                                  : "bg-foreground text-white hover:bg-foreground/85 shadow-xs"
+                              }`}
+                            >
+                              <span>{isSolved ? "Review" : "Solve"}</span>
+                              <ArrowRight size={12} />
+                            </button>
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   );

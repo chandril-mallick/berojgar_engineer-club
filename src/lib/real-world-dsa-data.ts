@@ -20,16 +20,25 @@ export interface RealWorldDSAChallenge {
   category: string;
   dsaConcept: string;
   difficulty: "Easy" | "Medium" | "Hard";
-  realWorldContext: string;
-  problem: string;
-  inputFormat: string;
-  outputFormat: string;
-  constraints: string;
-  dsaObjective: string;
-  starterCode: Record<number, string>; // Judge0 language ID -> starter code
-  publicTestCases: TestCase[];
-  hiddenTestCases: TestCase[];
-  postSolutionExplanation: PostSolutionExplanation;
+  
+  // existing static fields
+  realWorldContext?: string;
+  problem?: string;
+  inputFormat?: string;
+  outputFormat?: string;
+  constraints?: string;
+  dsaObjective?: string;
+  starterCode?: Record<number, string>;
+  publicTestCases?: TestCase[];
+  hiddenTestCases?: TestCase[];
+  postSolutionExplanation?: PostSolutionExplanation;
+
+  // external source properties
+  source?: "static" | "codeforces";
+  url?: string;
+  rating?: number;
+  tags?: string[];
+  solvedCount?: number;
 }
 
 export const REAL_WORLD_DSA_CHALLENGES: RealWorldDSAChallenge[] = [

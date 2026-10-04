@@ -7,7 +7,9 @@ export const metadata = {
 
 export default function DailyChallengePage() {
   return (
-    <div className="py-6 space-y-8 max-w-4xl mx-auto">
+    // Full-bleed: escape root layout's px-6 py-10 so the workspace fills
+    // the entire viewport width (like LeetCode / CoderPad workspaces)
+    <div className="-mx-6 -my-10 h-[calc(100vh-4rem)] overflow-hidden">
       <DailyChallengeWidget />
     </div>
   );
