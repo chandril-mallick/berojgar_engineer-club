@@ -146,11 +146,11 @@ export function ActivityHeatmap({ streak, totalXP, completedCount, userXP }: Act
   }, [realActivityCounts, streak]);
 
   const levelColors = {
-    0: "bg-[#f1f5f9] border-[#e2e8f0]",
-    1: "bg-[#bbf7d0] border-[#86efac]",
-    2: "bg-[#4ade80] border-[#22c55e]",
-    3: "bg-[#22c55e] border-[#16a34a]",
-    4: "bg-[#15803d] border-[#166534]",
+    0: "bg-surface border-border",
+    1: "bg-green-200 border-green-300",
+    2: "bg-green-400 border-green-500",
+    3: "bg-green-500 border-green-600",
+    4: "bg-green-700 border-green-800",
   };
 
   const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -244,11 +244,11 @@ export function ActivityHeatmap({ streak, totalXP, completedCount, userXP }: Act
         {/* Level Legend */}
         <div className="flex items-center gap-1.5 text-[11px]">
           <span>Less</span>
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-[#f1f5f9] border border-[#e2e8f0]" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-[#bbf7d0] border border-[#86efac]" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-[#4ade80] border border-[#22c55e]" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-[#22c55e] border border-[#16a34a]" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-[#15803d] border border-[#166534]" />
+          <div className="w-2.5 h-2.5 rounded-[2px] bg-surface border border-border" />
+          <div className="w-2.5 h-2.5 rounded-[2px] bg-green-200 border border-green-300" />
+          <div className="w-2.5 h-2.5 rounded-[2px] bg-green-400 border border-green-500" />
+          <div className="w-2.5 h-2.5 rounded-[2px] bg-green-500 border border-green-600" />
+          <div className="w-2.5 h-2.5 rounded-[2px] bg-green-700 border border-green-800" />
           <span>More</span>
         </div>
       </div>

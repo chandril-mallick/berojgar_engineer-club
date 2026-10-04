@@ -121,17 +121,17 @@ export default function DashboardPage() {
             <AreaChart data={PLACEMENT_TRENDS} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="becTrend" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0a0a0a" stopOpacity={0.08} />
-                  <stop offset="95%" stopColor="#0a0a0a" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-foreground)" stopOpacity={0.08} />
+                  <stop offset="95%" stopColor="var(--color-foreground)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: "#fff", border: "1px solid #e4e4e7", borderRadius: "8px", fontSize: "12px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
-                cursor={{ stroke: "#e4e4e7", strokeWidth: 1 }}
+                contentStyle={{ background: "var(--color-background)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: "12px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+                cursor={{ stroke: "var(--color-border)", strokeWidth: 1 }}
               />
-              <Area type="monotone" dataKey="score" stroke="#0a0a0a" strokeWidth={1.5} fill="url(#becTrend)" dot={false} />
+              <Area type="monotone" dataKey="score" stroke="var(--color-foreground)" strokeWidth={1.5} fill="url(#becTrend)" dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

@@ -109,15 +109,15 @@ export default function RealWorldDSAProblemsetPage() {
           {/* Easy / Medium / Hard Progress breakdown */}
           <div className="space-y-1.5 font-mono text-xs min-w-[140px]">
             <div className="flex justify-between items-center">
-              <span className="text-[#00b8a3] font-bold">Easy</span>
+              <span className="text-success font-bold">Easy</span>
               <span className="text-foreground">{easySolved} / {easyCount}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-[#ffc01e] font-bold">Medium</span>
+              <span className="text-brand font-bold">Medium</span>
               <span className="text-foreground">{mediumSolved} / {mediumCount}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-[#ff375f] font-bold">Hard</span>
+              <span className="text-danger font-bold">Hard</span>
               <span className="text-foreground">{hardSolved} / {hardCount}</span>
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function RealWorldDSAProblemsetPage() {
                       {/* Solved Status Checkmark */}
                       <td className="py-4 px-4 text-center">
                         {isSolved ? (
-                          <CheckCircle2 size={16} className="text-[#00b8a3] mx-auto fill-[#00b8a3]/10" />
+                          <CheckCircle2 size={16} className="text-success mx-auto fill-success/10" />
                         ) : (
                           <span className="inline-block w-4 h-4 rounded-full border border-border mx-auto" />
                         )}
@@ -225,7 +225,7 @@ export default function RealWorldDSAProblemsetPage() {
                       <td className="py-4 px-4">
                         <Link
                           href={`/real-world-dsa/${challenge.slug}`}
-                          className="font-bold text-foreground hover:text-[#00b8a3] transition-colors text-sm font-heading flex items-center gap-2"
+                          className="font-bold text-foreground hover:text-success transition-colors text-sm font-heading flex items-center gap-2"
                         >
                           <span>{idx + 1}. {challenge.title}</span>
                         </Link>
@@ -235,7 +235,7 @@ export default function RealWorldDSAProblemsetPage() {
                       </td>
 
                       {/* Category */}
-                      <td className="py-4 px-4 font-mono text-[#8a8a8a]">
+                      <td className="py-4 px-4 font-mono text-muted">
                         <span className="px-2 py-1 rounded-md bg-surface border border-border">
                           {challenge.category}
                         </span>
@@ -251,10 +251,10 @@ export default function RealWorldDSAProblemsetPage() {
                         <span
                           className={`px-2.5 py-0.5 rounded text-[11px] ${
                             challenge.difficulty === "Easy"
-                              ? "bg-[#00b8a3]/10 text-[#00b8a3]"
+                              ? "bg-success/10 text-success"
                               : challenge.difficulty === "Medium"
-                              ? "bg-[#ffc01e]/10 text-[#ffc01e]"
-                              : "bg-[#ff375f]/10 text-[#ff375f]"
+                              ? "bg-brand/10 text-brand"
+                              : "bg-danger/10 text-danger"
                           }`}
                         >
                           {challenge.difficulty}

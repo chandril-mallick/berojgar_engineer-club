@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
           // LeaderboardEntry.offer is string | null, not string | undefined
           offer: (u.targetCompany as string) || null,
           badgeIds: [],
-          avatarColor: "#6366f1",
+          avatarColor: "var(--color-brand)",
         }));
         setFirestoreEntries(mapped);
         setUsingMockData(false);
@@ -131,7 +131,7 @@ export default function LeaderboardPage() {
       xp: userXP.total || 120,
       offer: (profile?.answers?.internships ?? 0) > 0 ? "Placed" : "Grinding",
       badgeIds: userXP.earnedBadgeIds.length > 0 ? userXP.earnedBadgeIds : ["streak-7", "first-blood", "dsa-hero"],
-      avatarColor: "#6366f1",
+      avatarColor: "var(--color-brand)",
     };
 
     if (existingIdx !== -1) {

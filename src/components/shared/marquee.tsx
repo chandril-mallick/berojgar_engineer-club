@@ -28,7 +28,7 @@ export function Marquee({ items, speed = "normal", className = "" }: MarqueeProp
         {tripleItems.map((item, i) => (
           <div key={`m-${i}`} className="flex items-center gap-8 shrink-0">
             <span className="text-xs font-mono font-bold text-foreground/80 uppercase tracking-wider whitespace-nowrap flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#ffc700] inline-block animate-pulse" />
+              <span className="h-1.5 w-1.5 rounded-full bg-brand inline-block animate-pulse" />
               {item}
             </span>
             <span className="text-muted/40 font-mono text-xs select-none">&bull;</span>

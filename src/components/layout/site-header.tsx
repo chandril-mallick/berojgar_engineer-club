@@ -130,7 +130,7 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b border-[#c8c8d0] bg-white/95 backdrop-blur-md transition-all duration-200",
+        "sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur-md transition-all duration-200",
         scrolled ? "shadow-2xs bg-white" : "bg-white/95"
       )}
     >
@@ -139,7 +139,7 @@ export function SiteHeader() {
         {/* ── LEFT: LOGO + TAGLINE ── */}
         <div className="flex items-center gap-3 shrink-0">
           <Logo size="md" />
-          <span className="hidden xl:inline-block text-[10px] font-mono font-extrabold text-foreground/80 border-l border-[#c8c8d0] pl-3 py-1 uppercase tracking-wider">
+          <span className="hidden xl:inline-block text-[10px] font-mono font-extrabold text-foreground/80 border-l border-border pl-3 py-1 uppercase tracking-wider">
             Sikhenge &bull; Banayenge &bull; Badlenge
           </span>
         </div>
@@ -155,7 +155,7 @@ export function SiteHeader() {
                 "px-3 py-2 border transition-colors select-none",
                 pathname === "/assessment"
                   ? "bg-black text-white border-black font-extrabold"
-                  : "border-transparent text-foreground hover:border-[#c8c8d0] hover:bg-surface"
+                  : "border-transparent text-foreground hover:border-border hover:bg-surface"
               )}
             >
               Reality Check
@@ -168,7 +168,7 @@ export function SiteHeader() {
                 "px-3 py-2 border transition-colors select-none flex items-center gap-1.5",
                 pathname === "/profile"
                   ? "bg-black text-white border-black font-extrabold"
-                  : "border-transparent text-foreground/80 hover:text-foreground hover:border-[#c8c8d0]"
+                  : "border-transparent text-foreground/80 hover:text-foreground hover:border-border"
               )}
             >
               <User size={13} />
@@ -185,8 +185,8 @@ export function SiteHeader() {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 border transition-colors select-none",
                   isPracticeActive || activeDropdown === "practice"
-                    ? "bg-surface border-[#c8c8d0] text-foreground font-extrabold"
-                    : "border-transparent text-foreground/80 hover:text-foreground hover:border-[#c8c8d0]"
+                    ? "bg-surface border-border text-foreground font-extrabold"
+                    : "border-transparent text-foreground/80 hover:text-foreground hover:border-border"
                 )}
               >
                 <span>Practice</span>
@@ -203,7 +203,7 @@ export function SiteHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute left-0 top-full mt-1.5 w-48 border border-[#c8c8d0] bg-white p-1 shadow-md z-50 rounded-none"
+                    className="absolute left-0 top-full mt-1.5 w-48 border border-border bg-white p-1 shadow-md z-50 rounded-none"
                   >
                     {practiceItems.map((item) => (
                       <Link
@@ -239,8 +239,8 @@ export function SiteHeader() {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 border transition-colors select-none",
                   isCommunityActive || activeDropdown === "community"
-                    ? "bg-surface border-[#c8c8d0] text-foreground font-extrabold"
-                    : "border-transparent text-foreground/80 hover:text-foreground hover:border-[#c8c8d0]"
+                    ? "bg-surface border-border text-foreground font-extrabold"
+                    : "border-transparent text-foreground/80 hover:text-foreground hover:border-border"
                 )}
               >
                 <span>Community</span>
@@ -257,7 +257,7 @@ export function SiteHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute left-0 top-full mt-1.5 w-60 border border-[#c8c8d0] bg-white p-1 shadow-md z-50 rounded-none"
+                    className="absolute left-0 top-full mt-1.5 w-60 border border-border bg-white p-1 shadow-md z-50 rounded-none"
                   >
                     {communityItems.map((item) => (
                       <Link
@@ -293,8 +293,8 @@ export function SiteHeader() {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 border transition-colors select-none",
                   isMoreActive || activeDropdown === "more"
-                    ? "bg-surface border-[#c8c8d0] text-foreground font-extrabold"
-                    : "border-transparent text-foreground/80 hover:text-foreground hover:border-[#c8c8d0]"
+                    ? "bg-surface border-border text-foreground font-extrabold"
+                    : "border-transparent text-foreground/80 hover:text-foreground hover:border-border"
                 )}
               >
                 <span>More</span>
@@ -311,7 +311,7 @@ export function SiteHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute right-0 top-full mt-1.5 w-52 border border-[#c8c8d0] bg-white p-1 shadow-md z-50 rounded-none"
+                    className="absolute right-0 top-full mt-1.5 w-52 border border-border bg-white p-1 shadow-md z-50 rounded-none"
                   >
                     {moreItems.map((item) => (
                       <Link
@@ -356,12 +356,12 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={() => setProfileMenuOpen((v) => !v)}
-                className="flex items-center gap-2 border border-[#c8c8d0] bg-white px-2 py-1 text-xs font-mono font-bold text-foreground hover:bg-surface transition-colors select-none"
+                className="flex items-center gap-2 border border-border bg-white px-2 py-1 text-xs font-mono font-bold text-foreground hover:bg-surface transition-colors select-none"
               >
                 <img
                   src={getUserAvatarUrl(user)}
                   alt={user.displayName || "User"}
-                  className="h-5 w-5 rounded-full object-cover border border-[#c8c8d0] shrink-0"
+                  className="h-5 w-5 rounded-full object-cover border border-border shrink-0"
                 />
                 <span className="hidden md:inline max-w-[80px] truncate uppercase">
                   {user.displayName?.split(" ")[0] || "Engineer"}
@@ -376,9 +376,9 @@ export function SiteHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute right-0 top-full mt-1.5 w-48 border border-[#c8c8d0] bg-white p-1 shadow-md z-50 rounded-none font-mono text-xs"
+                    className="absolute right-0 top-full mt-1.5 w-48 border border-border bg-white p-1 shadow-md z-50 rounded-none font-mono text-xs"
                   >
-                    <div className="px-3 py-2 border-b border-[#c8c8d0]">
+                    <div className="px-3 py-2 border-b border-border">
                       <p className="font-bold text-foreground truncate">{user.displayName || "Engineer"}</p>
                       <p className="text-[10px] text-muted truncate">{user.email}</p>
                     </div>
@@ -386,7 +386,7 @@ export function SiteHeader() {
                     <Link
                       href="/profile"
                       onClick={() => setProfileMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-foreground hover:bg-surface font-bold transition-colors text-left border-b border-[#c8c8d0]"
+                      className="flex items-center gap-2 px-3 py-2 text-foreground hover:bg-surface font-bold transition-colors text-left border-b border-border"
                     >
                       <User size={13} className="text-amber-600" />
                       <span>View Profile &amp; Stats</span>
@@ -416,7 +416,7 @@ export function SiteHeader() {
               </button>
               <button
                 onClick={() => openAuthModal("Sign in to enter tasks, submit work, or save career progress.")}
-                className="bg-[#ffc700] text-black border border-black hover:bg-[#e6b300] px-3.5 py-1.5 transition-colors shadow-2xs"
+                className="bg-brand text-black border border-black hover:bg-brand/90 px-3.5 py-1.5 transition-colors shadow-2xs"
               >
                 Sign Up
               </button>
@@ -425,7 +425,7 @@ export function SiteHeader() {
 
           {/* Mobile Hamburger Button */}
           <button
-            className="flex h-9 w-9 items-center justify-center border border-[#c8c8d0] bg-white text-foreground hover:bg-surface transition-colors lg:hidden"
+            className="flex h-9 w-9 items-center justify-center border border-border bg-white text-foreground hover:bg-surface transition-colors lg:hidden"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -447,7 +447,7 @@ export function SiteHeader() {
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
-              className="fixed top-16 left-0 right-0 z-40 border-b border-[#c8c8d0] bg-white p-6 lg:hidden max-h-[85vh] overflow-y-auto font-mono text-xs font-bold uppercase tracking-wider"
+              className="fixed top-16 left-0 right-0 z-40 border-b border-border bg-white p-6 lg:hidden max-h-[85vh] overflow-y-auto font-mono text-xs font-bold uppercase tracking-wider"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
@@ -468,17 +468,17 @@ export function SiteHeader() {
                 <Link
                   href="/profile"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center gap-2 p-3 border border-[#c8c8d0] bg-surface text-foreground font-extrabold text-center hover:bg-white transition-colors"
+                  className="flex items-center justify-center gap-2 p-3 border border-border bg-surface text-foreground font-extrabold text-center hover:bg-white transition-colors"
                 >
                   <User size={14} className="text-amber-600" />
                   <span>My Profile &amp; Stats</span>
                 </Link>
 
                 {/* 2. Practice Accordion */}
-                <div className="border border-[#c8c8d0] bg-surface">
+                <div className="border border-border bg-surface">
                   <button
                     onClick={() => setMobileAccordion(mobileAccordion === "practice" ? null : "practice")}
-                    className="flex w-full items-center justify-between p-3 text-left font-extrabold border-b border-[#c8c8d0] last:border-0"
+                    className="flex w-full items-center justify-between p-3 text-left font-extrabold border-b border-border last:border-0"
                   >
                     <span>Practice</span>
                     <ChevronDown size={14} className={cn("transition-transform", mobileAccordion === "practice" && "rotate-180")} />
@@ -504,10 +504,10 @@ export function SiteHeader() {
                 </div>
 
                 {/* 3. Community Accordion */}
-                <div className="border border-[#c8c8d0] bg-surface">
+                <div className="border border-border bg-surface">
                   <button
                     onClick={() => setMobileAccordion(mobileAccordion === "community" ? null : "community")}
-                    className="flex w-full items-center justify-between p-3 text-left font-extrabold border-b border-[#c8c8d0] last:border-0"
+                    className="flex w-full items-center justify-between p-3 text-left font-extrabold border-b border-border last:border-0"
                   >
                     <span>Community</span>
                     <ChevronDown size={14} className={cn("transition-transform", mobileAccordion === "community" && "rotate-180")} />
@@ -533,10 +533,10 @@ export function SiteHeader() {
                 </div>
 
                 {/* 4. More Accordion */}
-                <div className="border border-[#c8c8d0] bg-surface">
+                <div className="border border-border bg-surface">
                   <button
                     onClick={() => setMobileAccordion(mobileAccordion === "more" ? null : "more")}
-                    className="flex w-full items-center justify-between p-3 text-left font-extrabold border-b border-[#c8c8d0] last:border-0"
+                    className="flex w-full items-center justify-between p-3 text-left font-extrabold border-b border-border last:border-0"
                   >
                     <span>More</span>
                     <ChevronDown size={14} className={cn("transition-transform", mobileAccordion === "more" && "rotate-180")} />

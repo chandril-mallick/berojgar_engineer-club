@@ -73,7 +73,7 @@ export function CookieConsentBanner() {
       aria-modal="true"
       className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6"
     >
-      <div className="mx-auto max-w-3xl rounded-none border border-[#c8c8d0] bg-white shadow-xl">
+      <div className="mx-auto max-w-3xl rounded-none border border-border bg-white shadow-xl">
         {/* ── BANNER PANEL ── */}
         {panel === "banner" && (
           <div className="p-5 sm:p-6 space-y-4">

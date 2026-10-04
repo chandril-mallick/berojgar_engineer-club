@@ -74,7 +74,7 @@ export function BerojgariCertificate({
       const dataUrl = await toJpeg(certRef.current, {
         quality: 0.98,
         cacheBust: true,
-        backgroundColor: "#fffdf5",
+        backgroundColor: "var(--color-background)",
         filter,
       });
       const link = document.createElement("a");

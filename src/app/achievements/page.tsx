@@ -50,6 +50,9 @@ const QUEST_LINKS: Record<string, { href: string; label: string }> = {
   resume_improved: { href: "/resume", label: "Re-Score ATS Resume" },
 };
 
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeading, SectionHeading, Eyebrow } from "@/components/shared/section-heading";
+
 export default function AchievementsPage() {
   const [userXP, setUserXP] = useLocalStorage<UserXP>("bec-user-xp", DEFAULT_USER_XP);
   const [claimedPerkToast, setClaimedPerkToast] = useState<string | null>(null);
@@ -96,19 +99,15 @@ export default function AchievementsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10 pb-12">
+    <PageContainer size="narrow">
       {/* ── Header ── */}
       <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Award size={15} className="text-amber-500" />
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted">Gamification Hub</p>
-        </div>
-        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+        <Eyebrow>Gamification Hub</Eyebrow>
+        <PageHeading
+          subtitle="Earn XP by leveling up your engineering portfolio, maintaining daily login streaks, and unlocking exclusive perks."
+        >
           Badges, XP & Level Rewards
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Earn XP by leveling up your engineering portfolio, maintaining daily login streaks, and unlocking exclusive perks.
-        </p>
+        </PageHeading>
       </div>
 
       {/* ── Level + XP Hero Banner ── */}
@@ -396,6 +395,6 @@ export default function AchievementsPage() {
           ))}
         </div>
       </section>
-    </div>
+    </PageContainer>
   );
 }

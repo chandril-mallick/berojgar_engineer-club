@@ -13,7 +13,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 18400,
     offer: "Google",
     badgeIds: ["placement-slayer", "github-beast", "dsa-hero", "top-1-percent", "overachiever"],
-    avatarColor: "#6366f1",
+    avatarColor: "var(--color-brand)",
     avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -28,7 +28,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 15800,
     offer: "Amazon",
     badgeIds: ["placement-slayer", "github-beast", "resume-warrior", "streak-7"],
-    avatarColor: "#f59e0b",
+    avatarColor: "var(--color-brand)",
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -43,7 +43,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 14900,
     offer: "Microsoft",
     badgeIds: ["placement-slayer", "dsa-hero", "night-coder", "interview-master"],
-    avatarColor: "#10b981",
+    avatarColor: "var(--color-success)",
     avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -58,7 +58,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 13200,
     offer: "Flipkart",
     badgeIds: ["placement-slayer", "resume-warrior", "github-beast"],
-    avatarColor: "#ec4899",
+    avatarColor: "var(--color-brand)",
     avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -73,7 +73,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 12100,
     offer: "Infosys",
     badgeIds: ["placement-slayer", "streak-7", "first-blood"],
-    avatarColor: "#3b82f6",
+    avatarColor: "var(--color-link)",
     avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -88,7 +88,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 11400,
     offer: "TCS",
     badgeIds: ["dsa-hero", "resume-warrior", "first-blood"],
-    avatarColor: "#8b5cf6",
+    avatarColor: "var(--color-brand)",
     avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -103,7 +103,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 10800,
     offer: "Accenture",
     badgeIds: ["github-beast", "night-coder", "resume-warrior"],
-    avatarColor: "#f97316",
+    avatarColor: "var(--color-brand)",
     avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -118,7 +118,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 9500,
     offer: "Uber",
     badgeIds: ["dsa-hero", "streak-7"],
-    avatarColor: "#14b8a6",
+    avatarColor: "var(--color-success)",
     avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -133,7 +133,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 8700,
     offer: "Startup",
     badgeIds: ["first-blood", "night-coder"],
-    avatarColor: "#ef4444",
+    avatarColor: "var(--color-danger)",
     avatarUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80",
   },
   {
@@ -148,7 +148,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
     xp: 7600,
     offer: "IBM",
     badgeIds: ["first-blood"],
-    avatarColor: "#6b7280",
+    avatarColor: "var(--color-muted)",
     avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80",
   },
 ];

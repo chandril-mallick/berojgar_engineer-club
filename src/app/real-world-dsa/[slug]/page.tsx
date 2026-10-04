@@ -363,24 +363,24 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
   const codeLines = sourceCode.split("\n");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#f8f9fa] text-[#0f172a] overflow-hidden select-none font-sans">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-surface text-foreground overflow-hidden select-none font-sans">
       
       {/* ── 1. Clean Top Navigation Bar ── */}
-      <div className="h-12 border-b border-[#e2e8f0] bg-white px-4 flex items-center justify-between shrink-0 font-mono text-xs shadow-xs">
+      <div className="h-12 border-b border-border bg-white px-4 flex items-center justify-between shrink-0 font-mono text-xs shadow-xs">
         {/* Left: Back Link & Problem Meta */}
         <div className="flex items-center gap-3">
           <Link
             href="/real-world-dsa"
-            className="p-1.5 rounded-lg bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0f172a] transition-colors"
+            className="p-1.5 rounded-lg bg-surface hover:bg-border text-muted hover:text-foreground transition-colors"
             title="Back to Problem List"
           >
             <ChevronLeft size={16} />
           </Link>
 
-          <span className="h-4 w-px bg-[#e2e8f0]" />
+          <span className="h-4 w-px bg-border" />
 
           <div className="flex items-center gap-2 font-sans font-bold text-sm">
-            <span className="text-[#0f172a]">{challenge.title}</span>
+            <span className="text-foreground">{challenge.title}</span>
             <span
               className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold ${
                 challenge.difficulty === "Easy"
@@ -402,13 +402,13 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
         </div>
 
         {/* Center: Left Panel Tab Switcher */}
-        <div className="flex items-center bg-[#f1f5f9] p-0.5 rounded-lg border border-[#e2e8f0]">
+        <div className="flex items-center bg-surface p-0.5 rounded-lg border border-border">
           <button
             onClick={() => setActiveLeftTab("description")}
             className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
               activeLeftTab === "description"
-                ? "bg-white text-[#0f172a] shadow-xs"
-                : "text-[#64748b] hover:text-[#0f172a]"
+                ? "bg-white text-foreground shadow-xs"
+                : "text-muted hover:text-foreground"
             }`}
           >
             Description
@@ -417,8 +417,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
             onClick={() => setActiveLeftTab("editorial")}
             className={`px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 transition-colors ${
               activeLeftTab === "editorial"
-                ? "bg-white text-[#0f172a] shadow-xs"
-                : "text-[#64748b] hover:text-[#0f172a]"
+                ? "bg-white text-foreground shadow-xs"
+                : "text-muted hover:text-foreground"
             }`}
           >
             {unlockedEditorial ? <Unlock size={12} className="text-emerald-600" /> : <Lock size={12} />}
@@ -428,8 +428,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
             onClick={() => setActiveLeftTab("submissions")}
             className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
               activeLeftTab === "submissions"
-                ? "bg-white text-[#0f172a] shadow-xs"
-                : "text-[#64748b] hover:text-[#0f172a]"
+                ? "bg-white text-foreground shadow-xs"
+                : "text-muted hover:text-foreground"
             }`}
           >
             Submissions ({submissionsHistory.length})
@@ -442,7 +442,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
           <button
             onClick={handleRunCode}
             disabled={executing || submitting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#0f172a] border border-[#cbd5e1] text-xs font-bold transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface hover:bg-border text-foreground border border-border text-xs font-bold transition-all disabled:opacity-50"
             title="Run code against sample input (Ctrl+Enter)"
           >
             {executing ? (
@@ -457,7 +457,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
           <button
             onClick={handleSubmitCode}
             disabled={submitting || executing}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-foreground hover:bg-foreground text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50"
             title="Submit solution to validate testcases (Ctrl+Shift+Enter)"
           >
             {submitting ? (
@@ -477,7 +477,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
         <div 
           onCopy={(e) => e.preventDefault()}
           onContextMenu={(e) => e.preventDefault()}
-          className="lg:col-span-5 border-r border-[#e2e8f0] bg-white flex flex-col overflow-hidden select-none"
+          className="lg:col-span-5 border-r border-border bg-white flex flex-col overflow-hidden select-none"
         >
           
           {/* TAB 1: DESCRIPTION */}
@@ -485,12 +485,12 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
             <div 
               onCopy={(e) => e.preventDefault()}
               onContextMenu={(e) => e.preventDefault()}
-              className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-[#334155] leading-relaxed font-sans scrollbar-thin select-none"
+              className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-foreground leading-relaxed font-sans scrollbar-thin select-none"
             >
               
               {/* Problem Header */}
-              <div className="space-y-3 pb-4 border-b border-[#e2e8f0]">
-                <h1 className="text-2xl font-bold text-[#0f172a] font-heading">
+              <div className="space-y-3 pb-4 border-b border-border">
+                <h1 className="text-2xl font-bold text-foreground font-heading">
                   {challenge.title}
                 </h1>
 
@@ -506,7 +506,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   >
                     {challenge.difficulty}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]">
+                  <span className="px-2.5 py-0.5 rounded bg-surface text-muted border border-border">
                     {challenge.category}
                   </span>
                   <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-700 border border-amber-500/20">
@@ -516,12 +516,12 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
                 {/* Company Tag Badges */}
                 <div className="flex items-center gap-1.5 pt-1 text-xs font-mono">
-                  <Building2 size={13} className="text-[#64748b]" />
-                  <span className="text-[#64748b]">Companies:</span>
-                  <span className="px-2 py-0.5 rounded bg-[#f1f5f9] text-[#0f172a] border border-[#e2e8f0] text-[11px]">
+                  <Building2 size={13} className="text-muted" />
+                  <span className="text-muted">Companies:</span>
+                  <span className="px-2 py-0.5 rounded bg-surface text-foreground border border-border text-[11px]">
                     Swiggy / Zomato
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-[#f1f5f9] text-[#0f172a] border border-[#e2e8f0] text-[11px]">
+                  <span className="px-2 py-0.5 rounded bg-surface text-foreground border border-border text-[11px]">
                     Amazon
                   </span>
                 </div>
@@ -533,43 +533,43 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   <Cpu size={15} />
                   <span>REAL-WORLD ENGINEERING CONTEXT</span>
                 </div>
-                <p className="text-xs text-[#334155] leading-relaxed">
+                <p className="text-xs text-foreground leading-relaxed">
                   {challenge.realWorldContext}
                 </p>
               </div>
 
               {/* Problem Description */}
               <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748b] font-mono">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">
                   Problem Description
                 </h3>
-                <p className="text-sm text-[#0f172a] leading-relaxed">
+                <p className="text-sm text-foreground leading-relaxed">
                   {challenge.problem}
                 </p>
               </div>
 
               {/* Examples */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748b] font-mono">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">
                   Examples
                 </h3>
 
                 {challenge.publicTestCases.map((tc, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4 space-y-2 font-mono text-xs select-none"
+                    className="bg-surface border border-border rounded-xl p-4 space-y-2 font-mono text-xs select-none"
                   >
                     <div className="font-bold text-emerald-600">Example {idx + 1}:</div>
                     <div>
-                      <span className="text-[#64748b]">Input: </span>
-                      <span className="text-[#0f172a] font-bold whitespace-pre-wrap">{tc.input}</span>
+                      <span className="text-muted">Input: </span>
+                      <span className="text-foreground font-bold whitespace-pre-wrap">{tc.input}</span>
                     </div>
                     <div>
-                      <span className="text-[#64748b]">Output: </span>
-                      <span className="text-[#0f172a] font-bold whitespace-pre-wrap">{tc.expectedOutput}</span>
+                      <span className="text-muted">Output: </span>
+                      <span className="text-foreground font-bold whitespace-pre-wrap">{tc.expectedOutput}</span>
                     </div>
                     {tc.description && (
-                      <div className="pt-1 text-[#64748b] italic font-sans text-xs">
+                      <div className="pt-1 text-muted italic font-sans text-xs">
                         Explanation: {tc.description}
                       </div>
                     )}
@@ -579,10 +579,10 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
               {/* Constraints */}
               <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748b] font-mono">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">
                   Constraints
                 </h3>
-                <pre className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl text-xs font-mono text-[#0f172a] select-none">
+                <pre className="bg-surface border border-border p-3 rounded-xl text-xs font-mono text-foreground select-none">
                   {challenge.constraints}
                 </pre>
               </div>
@@ -593,7 +593,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   <BookOpen size={14} />
                   <span>TARGET DSA CONCEPT: {challenge.dsaConcept}</span>
                 </div>
-                <p className="text-xs text-[#334155]">
+                <p className="text-xs text-foreground">
                   {challenge.dsaObjective}
                 </p>
               </div>
@@ -605,46 +605,46 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
             <div 
               onCopy={(e) => e.preventDefault()}
               onContextMenu={(e) => e.preventDefault()}
-              className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-[#334155] leading-relaxed font-sans scrollbar-thin select-none"
+              className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-foreground leading-relaxed font-sans scrollbar-thin select-none"
             >
               {unlockedEditorial ? (
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#e2e8f0]">
+                  <div className="flex items-center justify-between pb-3 border-b border-border">
                     <div>
-                      <h2 className="text-lg font-bold text-[#0f172a] font-heading">
+                      <h2 className="text-lg font-bold text-foreground font-heading">
                         Editorial &amp; Full Solution
                       </h2>
-                      <p className="text-xs text-[#64748b] font-mono">
+                      <p className="text-xs text-muted font-mono">
                         Optimal Reference Approach &amp; Complexity Analysis
                       </p>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0] text-xs font-mono flex items-center gap-1">
+                    <span className="px-2.5 py-1 rounded bg-surface text-muted border border-border text-xs font-mono flex items-center gap-1">
                       <Lock size={12} />
                       <span>Copying Disabled</span>
                     </span>
                   </div>
 
                   {/* Concept & Why */}
-                  <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4 space-y-2">
+                  <div className="bg-surface border border-border rounded-xl p-4 space-y-2">
                     <h3 className="text-xs font-bold text-emerald-700 font-mono uppercase">
                       DSA Choice: {challenge.postSolutionExplanation.dsaUsed}
                     </h3>
-                    <p className="text-xs text-[#334155] leading-relaxed">
+                    <p className="text-xs text-foreground leading-relaxed">
                       {challenge.postSolutionExplanation.why}
                     </p>
                   </div>
 
                   {/* Complexity Analysis */}
                   <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-                    <div className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl">
-                      <div className="text-[#64748b]">Time Complexity</div>
-                      <div className="text-base font-bold text-[#0f172a] mt-1">
+                    <div className="bg-surface border border-border p-3 rounded-xl">
+                      <div className="text-muted">Time Complexity</div>
+                      <div className="text-base font-bold text-foreground mt-1">
                         {challenge.postSolutionExplanation.timeComplexity}
                       </div>
                     </div>
-                    <div className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl">
-                      <div className="text-[#64748b]">Space Complexity</div>
-                      <div className="text-base font-bold text-[#0f172a] mt-1">
+                    <div className="bg-surface border border-border p-3 rounded-xl">
+                      <div className="text-muted">Space Complexity</div>
+                      <div className="text-base font-bold text-foreground mt-1">
                         {challenge.postSolutionExplanation.spaceComplexity}
                       </div>
                     </div>
@@ -652,10 +652,10 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
                   {/* Real World Applications */}
                   <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-[#64748b] uppercase font-mono">
+                    <h4 className="text-xs font-bold text-muted uppercase font-mono">
                       Production Applications
                     </h4>
-                    <ul className="space-y-1.5 text-xs text-[#334155]">
+                    <ul className="space-y-1.5 text-xs text-foreground">
                       {challenge.postSolutionExplanation.realWorldApplications.map((app, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <span className="text-emerald-600 font-bold">&bull;</span>
@@ -667,28 +667,28 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
                   {/* Full Reference Solution Code */}
                   <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-[#64748b] uppercase font-mono">
+                    <h4 className="text-xs font-bold text-muted uppercase font-mono">
                       Full Reference Code Solution
                     </h4>
-                    <pre className="bg-[#0f172a] border border-[#1e293b] p-4 rounded-xl text-xs font-mono text-[#f8fafc] overflow-x-auto leading-relaxed shadow-sm">
+                    <pre className="bg-foreground border border-foreground p-4 rounded-xl text-xs font-mono text-surface overflow-x-auto leading-relaxed shadow-sm">
                       {challenge.starterCode[selectedLangId] || challenge.starterCode[71]}
                     </pre>
                   </div>
                 </div>
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
-                  <div className="p-4 rounded-2xl bg-[#f1f5f9] text-amber-600">
+                  <div className="p-4 rounded-2xl bg-surface text-amber-600">
                     <Lock size={32} />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-base font-bold text-[#0f172a]">Full Solution Locked</h3>
-                    <p className="text-xs text-[#64748b] max-w-xs">
+                    <h3 className="text-base font-bold text-foreground">Full Solution Locked</h3>
+                    <p className="text-xs text-muted max-w-xs">
                       Submit a valid solution passing all testcases or unlock the reference solution below.
                     </p>
                   </div>
                   <button
                     onClick={() => setUnlockedEditorial(true)}
-                    className="px-4 py-2 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] text-white text-xs font-bold font-mono transition-colors"
+                    className="px-4 py-2 rounded-lg bg-foreground hover:bg-foreground text-white text-xs font-bold font-mono transition-colors"
                   >
                     Unlock Full Solution
                   </button>
@@ -700,16 +700,16 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
           {/* TAB 3: SUBMISSIONS HISTORY */}
           {activeLeftTab === "submissions" && (
             <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-xs">
-              <h2 className="text-base font-bold text-[#0f172a] font-heading font-sans">
+              <h2 className="text-base font-bold text-foreground font-heading font-sans">
                 Submission History
               </h2>
 
               {submissionsHistory.length === 0 ? (
-                <div className="text-center py-12 text-[#64748b]">
+                <div className="text-center py-12 text-muted">
                   No submission attempts yet. Click &quot;Submit&quot; to test your code!
                 </div>
               ) : (
-                <div className="divide-y divide-[#e2e8f0]">
+                <div className="divide-y divide-border">
                   {submissionsHistory.map((sub) => (
                     <div key={sub.id} className="py-3 flex items-center justify-between">
                       <div className="space-y-0.5">
@@ -720,11 +720,11 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                         >
                           {sub.status}
                         </span>
-                        <div className="text-[11px] text-[#64748b]">
+                        <div className="text-[11px] text-muted">
                           {sub.lang} &bull; {sub.time}
                         </div>
                       </div>
-                      <span className="text-[#0f172a] font-bold">{sub.runtime}</span>
+                      <span className="text-foreground font-bold">{sub.runtime}</span>
                     </div>
                   ))}
                 </div>
@@ -737,9 +737,9 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
         <div className="lg:col-span-7 bg-white flex flex-col overflow-hidden">
           
           {/* Editor Header Bar */}
-          <div className="h-10 border-b border-[#e2e8f0] bg-[#f8fafc] px-4 flex items-center justify-between text-xs font-mono text-[#64748b]">
+          <div className="h-10 border-b border-border bg-surface px-4 flex items-center justify-between text-xs font-mono text-muted">
             <div className="flex items-center gap-3">
-              <span className="text-[#0f172a] font-bold flex items-center gap-1.5">
+              <span className="text-foreground font-bold flex items-center gap-1.5">
                 <FileCode size={14} className="text-emerald-600" />
                 <span>Code Editor</span>
               </span>
@@ -748,7 +748,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
               <select
                 value={selectedLangId}
                 onChange={(e) => handleLanguageChange(Number(e.target.value))}
-                className="bg-white text-[#0f172a] text-xs font-mono font-semibold px-2.5 py-1 rounded border border-[#cbd5e1] focus:outline-none focus:border-[#0f172a]"
+                className="bg-white text-foreground text-xs font-mono font-semibold px-2.5 py-1 rounded border border-border focus:outline-none focus:border-foreground"
               >
                 {JUDGE0_LANGUAGES.map((lang) => (
                   <option key={lang.id} value={lang.id}>
@@ -759,10 +759,10 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-[#64748b] text-[11px]">{codeLines.length} lines</span>
+              <span className="text-muted text-[11px]">{codeLines.length} lines</span>
               <button
                 onClick={handleResetCode}
-                className="hover:text-[#0f172a] transition-colors flex items-center gap-1"
+                className="hover:text-foreground transition-colors flex items-center gap-1"
                 title="Reset code to clean starter template"
               >
                 <RotateCcw size={13} />
@@ -774,7 +774,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
           {/* Editor Core Textarea with Line Numbers (CLEAN LIGHT THEME) */}
           <div className="flex-1 flex overflow-hidden bg-white relative">
             {/* Left Gutter: Line Numbers */}
-            <div className="w-12 py-3 bg-[#f8fafc] text-[#94a3b8] font-mono text-xs select-none text-right pr-3 border-r border-[#e2e8f0] shrink-0 leading-6">
+            <div className="w-12 py-3 bg-surface text-muted font-mono text-xs select-none text-right pr-3 border-r border-border shrink-0 leading-6">
               {codeLines.map((_, i) => (
                 <div key={i}>{i + 1}</div>
               ))}
@@ -792,15 +792,15 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
               onCopy={(e) => e.preventDefault()}
               onCut={(e) => e.preventDefault()}
               spellCheck={false}
-              className="flex-1 p-3 bg-white text-[#0f172a] font-mono text-xs leading-6 resize-none focus:outline-none scrollbar-thin overflow-y-auto whitespace-pre"
+              className="flex-1 p-3 bg-white text-foreground font-mono text-xs leading-6 resize-none focus:outline-none scrollbar-thin overflow-y-auto whitespace-pre"
               placeholder="// Write your code solution here..."
             />
           </div>
 
           {/* ── 3. Bottom Interactive Console Panel (CLEAN LIGHT THEME) ── */}
-          <div className="border-t border-[#e2e8f0] bg-[#f8fafc] flex flex-col shrink-0">
+          <div className="border-t border-border bg-surface flex flex-col shrink-0">
             {/* Console Bar Header */}
-            <div className="h-9 px-4 border-b border-[#e2e8f0] flex items-center justify-between text-xs font-mono text-[#64748b]">
+            <div className="h-9 px-4 border-b border-border flex items-center justify-between text-xs font-mono text-muted">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => {
@@ -809,8 +809,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   }}
                   className={`flex items-center gap-1.5 py-1 font-semibold transition-colors ${
                     activeConsoleTab === "testcases" && isConsoleOpen
-                      ? "text-[#0f172a] border-b-2 border-[#0f172a]"
-                      : "hover:text-[#0f172a]"
+                      ? "text-foreground border-b-2 border-foreground"
+                      : "hover:text-foreground"
                   }`}
                 >
                   <Terminal size={13} />
@@ -824,8 +824,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                   }}
                   className={`flex items-center gap-1.5 py-1 font-semibold transition-colors ${
                     activeConsoleTab === "testresult" && isConsoleOpen
-                      ? "text-[#0f172a] border-b-2 border-[#0f172a]"
-                      : "hover:text-[#0f172a]"
+                      ? "text-foreground border-b-2 border-foreground"
+                      : "hover:text-foreground"
                   }`}
                 >
                   <CheckCheck size={13} />
@@ -835,7 +835,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
               <button
                 onClick={() => setIsConsoleOpen(!isConsoleOpen)}
-                className="hover:text-[#0f172a] flex items-center gap-1 text-[11px]"
+                className="hover:text-foreground flex items-center gap-1 text-[11px]"
               >
                 <span>Console</span>
                 {isConsoleOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
@@ -857,8 +857,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                           onClick={() => setActiveCaseIndex(idx)}
                           className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
                             activeCaseIndex === idx
-                              ? "bg-[#0f172a] text-white"
-                              : "bg-[#f1f5f9] text-[#64748b] hover:text-[#0f172a]"
+                              ? "bg-foreground text-white"
+                              : "bg-surface text-muted hover:text-foreground"
                           }`}
                         >
                           Case {idx + 1}
@@ -868,11 +868,11 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
                     {/* Input Display Box */}
                     <div className="space-y-1.5">
-                      <div className="text-[11px] text-[#64748b]">Input =</div>
+                      <div className="text-[11px] text-muted">Input =</div>
                       <textarea
                         value={customStdin}
                         onChange={(e) => setCustomStdin(e.target.value)}
-                        className="w-full bg-[#f8fafc] border border-[#cbd5e1] p-2.5 rounded-lg text-[#0f172a] font-mono text-xs resize-none focus:outline-none focus:border-[#0f172a]"
+                        className="w-full bg-surface border border-border p-2.5 rounded-lg text-foreground font-mono text-xs resize-none focus:outline-none focus:border-foreground"
                         rows={2}
                       />
                     </div>
@@ -904,14 +904,14 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-6 text-xs text-[#64748b]">
+                        <div className="flex items-center gap-6 text-xs text-muted">
                           <div className="flex items-center gap-1.5">
                             <Clock size={13} className="text-emerald-600" />
-                            <span>Runtime: <strong className="text-[#0f172a]">{executionTimeMs}</strong></span>
+                            <span>Runtime: <strong className="text-foreground">{executionTimeMs}</strong></span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <HardDrive size={13} className="text-emerald-600" />
-                            <span>Memory: <strong className="text-[#0f172a]">{executionMemoryMb}</strong></span>
+                            <span>Memory: <strong className="text-foreground">{executionMemoryMb}</strong></span>
                           </div>
                         </div>
                       </div>
@@ -932,9 +932,9 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
 
                         {/* Failed Case Diff View */}
                         {testResults.find(r => !r.passed) && (
-                          <div className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl space-y-2 text-xs">
-                            <div className="text-[#64748b]">Failed Case Input:</div>
-                            <pre className="text-[#0f172a] bg-white p-2 rounded border border-[#e2e8f0]">
+                          <div className="bg-surface border border-border p-3 rounded-xl space-y-2 text-xs">
+                            <div className="text-muted">Failed Case Input:</div>
+                            <pre className="text-foreground bg-white p-2 rounded border border-border">
                               {testResults.find(r => !r.passed)?.input}
                             </pre>
                             <div className="grid grid-cols-2 gap-2 pt-1">
@@ -970,8 +970,8 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                               <span>Code Executed Successfully ({executionTimeMs})</span>
                             </div>
                             <div className="space-y-1">
-                              <div className="text-[#64748b]">Standard Output:</div>
-                              <pre className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl text-[#0f172a] font-mono text-xs whitespace-pre-wrap">
+                              <div className="text-muted">Standard Output:</div>
+                              <pre className="bg-surface border border-border p-3 rounded-xl text-foreground font-mono text-xs whitespace-pre-wrap">
                                 {runResult.stdout || "(No output printed)"}
                               </pre>
                             </div>
@@ -981,7 +981,7 @@ export default function CleanDSAWorkspacePage({ params }: PageProps) {
                     )}
 
                     {!executing && !submitting && !runResult && submissionStatus === "idle" && (
-                      <div className="text-[#64748b] text-center py-6">
+                      <div className="text-muted text-center py-6">
                         Click &quot;Run&quot; or &quot;Submit&quot; above to see execution results.
                       </div>
                     )}

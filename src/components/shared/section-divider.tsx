@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 interface SectionDividerProps {
   position?: "top" | "bottom";
   variant?: "wave" | "curve" | "layered" | "slant";
-  fillColor?: string; // CSS fill class e.g. fill-[#ffc700] or fill-[#0f172a]
+  fillColor?: string; // CSS fill class e.g. fill-brand or fill-[var(--color-foreground)]
   className?: string;
 }
 
 export function SectionDivider({
   position = "top",
   variant = "wave",
-  fillColor = "fill-[#ffc700]",
+  fillColor = "fill-brand",
   className = "",
 }: SectionDividerProps) {
   const isTop = position === "top";

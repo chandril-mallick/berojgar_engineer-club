@@ -14,7 +14,7 @@ export function FAQAccordion() {
         return (
           <div
             key={item.q}
-            className="border border-[#c8c8d0] bg-white rounded-none transition-colors overflow-hidden"
+            className="border border-border bg-white rounded-none transition-colors overflow-hidden"
           >
             <button
               type="button"
@@ -32,7 +32,7 @@ export function FAQAccordion() {
               />
             </button>
             {isOpen && (
-              <div className="px-4 pb-4 text-xs font-medium text-muted leading-relaxed border-t border-[#c8c8d0]/40 pt-3 bg-surface/20">
+              <div className="px-4 pb-4 text-xs font-medium text-muted leading-relaxed border-t border-border/40 pt-3 bg-surface/20">
                 {item.a}
               </div>
             )}

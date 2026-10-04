@@ -82,7 +82,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 mb-16 w-full space-y-12">
       {/* 1. Main Footer Link Card */}
-      <div className="mx-auto max-w-[1360px] rounded-none border border-[#c8c8d0] bg-white p-8 md:p-12 shadow-xs">
+      <div className="mx-auto max-w-[1360px] rounded-none border border-border bg-white p-8 md:p-12 shadow-xs">
         <div className="grid gap-8 md:grid-cols-5">
           {/* Logo & Description */}
           <div className="md:col-span-2 space-y-5">

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getConsentRecord, acceptAll, rejectNonEssential, setConsentRecord, ConsentCategory } from "@/lib/cookie-consent";
 import type { ConsentRecord } from "@/lib/cookie-consent";
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeading, Eyebrow } from "@/components/shared/section-heading";
 
 // ─── All localStorage keys the platform sets — verified from source ───────────
 const STORAGE_KEYS = [
@@ -169,10 +171,10 @@ export default function CookiesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-12 py-4">
+    <PageContainer size="narrow">
       <div className="border-b border-border pb-6">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-1">Legal</p>
-        <h1 className="font-heading text-2xl font-bold text-foreground">Cookie Settings</h1>
+        <Eyebrow>Legal</Eyebrow>
+        <PageHeading>Cookie Settings</PageHeading>
         <p className="mt-2 text-sm text-muted leading-relaxed">
           We believe you should know exactly what your browser stores on behalf of this platform —
           and you should be in control of it. This page explains every storage key the app sets and

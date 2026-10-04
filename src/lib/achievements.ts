@@ -129,9 +129,9 @@ export function getBadgeById(id: string): BadgeDefinition | undefined {
 
 export const RARITY_COLORS: Record<BadgeDefinition["rarity"], string> = {
   common: "text-slate-600 bg-slate-100 border-slate-300",
-  rare: "text-[#0284c7] bg-sky-50 border-sky-300",
-  epic: "text-[#9333ea] bg-purple-50 border-purple-300",
-  legendary: "text-[#d97706] bg-amber-50 border-amber-300",
+  rare: "text-[var(--color-link)] bg-sky-50 border-sky-300",
+  epic: "text-[var(--color-brand)] bg-purple-50 border-purple-300",
+  legendary: "text-[var(--color-brand)] bg-amber-50 border-amber-300",
 };
 
 export function checkNewAchievements(

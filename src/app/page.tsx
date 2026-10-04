@@ -55,8 +55,8 @@ export default function Home() {
     <div className="space-y-10">
 
       {/* ── SECTION 1: HERO GRID PANEL ── */}
-      <div className="border border-[#c8c8d0] rounded-none bg-white/60 backdrop-blur-md shadow-2xs">
-        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-[#c8c8d0]">
+      <div className="border border-border rounded-none bg-white/60 backdrop-blur-md shadow-2xs">
+        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border">
           
           {/* Main Hero Copy (Left 2/3) */}
           <div className="p-8 lg:col-span-2 flex flex-col justify-between min-h-[320px] space-y-8">
@@ -90,7 +90,7 @@ export default function Home() {
           {/* Integrated Graphic Unit (Right 1/3): Anchored Badge + Frameless Logo + Seal */}
           <div className="p-6 flex flex-col justify-between items-center text-center min-h-[380px] relative overflow-hidden bg-gradient-to-b from-slate-100/90 via-white to-amber-50/20">
             {/* Top Integrated Badge Header */}
-            <div className="w-full flex items-center justify-between border-b border-[#c8c8d0]/60 pb-3">
+            <div className="w-full flex items-center justify-between border-b border-border/60 pb-3">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-black text-white px-3 py-1 text-[9px] font-mono font-black uppercase tracking-widest">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 2026 Batch Ready
@@ -112,7 +112,7 @@ export default function Home() {
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
                 whileHover={{ scale: 1.05 }}
-                className="relative z-10 p-4 bg-white/90 rounded-2xl border border-[#c8c8d0]/70 shadow-sm"
+                className="relative z-10 p-4 bg-white/90 rounded-2xl border border-border/70 shadow-sm"
               >
                 <img
                   src="/berojgar-logo.png"
@@ -140,7 +140,7 @@ export default function Home() {
             </div>
 
             {/* Bottom Subtitle Anchor */}
-            <div className="w-full text-center border-t border-[#c8c8d0]/60 pt-3">
+            <div className="w-full text-center border-t border-border/60 pt-3">
               <span className="text-[10px] font-mono font-bold text-muted uppercase tracking-wider">
                 AI Career Coach &bull; Placement Reality Check
               </span>
@@ -152,8 +152,8 @@ export default function Home() {
 
       {/* ── SECTION 2: MANIFESTO STRIP & PROCESS (VIBRANT BEC GOLD WAVY BLOCK) ── */}
       <div className="-mx-6 overflow-hidden">
-        <SectionDivider position="top" variant="wave" fillColor="fill-[#ffc700]" />
-        <div className="bg-[#ffc700] text-black py-8 px-6 md:px-12 shadow-sm">
+        <SectionDivider position="top" variant="wave" fillColor="fill-brand" />
+        <div className="bg-brand text-black py-8 px-6 md:px-12 shadow-sm">
           <div className="mx-auto max-w-[1360px] flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <span className="text-[10px] font-mono font-black uppercase tracking-widest text-black/80 block mb-1">
@@ -170,17 +170,17 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <SectionDivider position="bottom" variant="wave" fillColor="fill-[#ffc700]" />
+        <SectionDivider position="bottom" variant="wave" fillColor="fill-brand" />
       </div>
 
       {/* ── STATS MARQUEE ── */}
-      <div className="border-y border-[#c8c8d0] -mx-6 px-0 bg-white/40 my-4">
+      <div className="border-y border-border -mx-6 px-0 bg-white/40 my-4">
         <Marquee items={MARQUEE_STATS} />
       </div>
 
       {/* ── SECTION 3: YOUR REALITY CHECK (SCORE BREAKDOWN & TOP 3 GAPS) ── */}
-      <div className="border border-[#c8c8d0] rounded-none bg-white shadow-2xs">
-        <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#c8c8d0]">
+      <div className="border border-border rounded-none bg-white shadow-2xs">
+        <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border">
           
           {/* Metrics breakdown (Left) */}
           <div className="p-8 flex flex-col justify-between space-y-6">
@@ -201,7 +201,7 @@ export default function Home() {
                     <span className="uppercase tracking-wider">{m.label}</span>
                     <span className="font-mono">{m.score}/100</span>
                   </div>
-                  <div className="h-2 w-full bg-surface border border-[#c8c8d0] overflow-hidden">
+                  <div className="h-2 w-full bg-surface border border-border overflow-hidden">
                     <div className={`h-full ${m.color}`} style={{ width: `${m.score}%` }} />
                   </div>
                 </div>
@@ -214,7 +214,7 @@ export default function Home() {
           </div>
 
           {/* Top 3 Gaps & CTA (Right) */}
-          <div className="p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#e9e9f0]/10 to-transparent">
+          <div className="p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[var(--color-border)]/10 to-transparent">
             <div>
               <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 block mb-1">
                 Diagnostic Output
@@ -225,7 +225,7 @@ export default function Home() {
 
               <div className="space-y-4">
                 {top3Gaps.map((g) => (
-                  <div key={g.no} className="p-4 border border-[#c8c8d0] bg-white flex items-start gap-4 shadow-2xs">
+                  <div key={g.no} className="p-4 border border-border bg-white flex items-start gap-4 shadow-2xs">
                     <span className="font-mono text-xl font-black text-rose-500 shrink-0">{g.no}</span>
                     <div>
                       <p className="text-xs font-bold text-foreground uppercase tracking-wider">{g.gap}</p>
@@ -250,8 +250,8 @@ export default function Home() {
 
       {/* ── SECTION 4: WHY THEY REJECT (MID-PAGE DEEP CHARCOAL BAND BREAK) ── */}
       <div className="-mx-6 overflow-hidden my-8">
-        <SectionDivider position="top" variant="wave" fillColor="fill-[#18181b]" />
-        <div className="bg-[#18181b] text-white py-10 px-6 md:px-12 shadow-xl">
+        <SectionDivider position="top" variant="wave" fillColor="fill-[var(--color-foreground)]" />
+        <div className="bg-foreground text-white py-10 px-6 md:px-12 shadow-xl">
           <div className="mx-auto max-w-[1360px] space-y-8">
             <div className="border-b border-zinc-800 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
@@ -294,12 +294,12 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <SectionDivider position="bottom" variant="wave" fillColor="fill-[#18181b]" />
+        <SectionDivider position="bottom" variant="wave" fillColor="fill-[var(--color-foreground)]" />
       </div>
 
       {/* ── SECTION 5: TODAY'S GRIND (RE-BALANCED COMPACT SPACING) ── */}
-      <div className="border border-[#c8c8d0] rounded-none bg-white shadow-2xs my-8">
-        <div className="p-8 border-b border-[#c8c8d0] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="border border-border rounded-none bg-white shadow-2xs my-8">
+        <div className="p-8 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <span className="text-[10px] font-black uppercase tracking-widest text-muted/80 block mb-1">
               Daily Placement Routine
@@ -317,14 +317,14 @@ export default function Home() {
         </div>
 
         {/* Tightened, balanced card layout with count + title + description + icon */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#c8c8d0]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
           {todaysGrindTasks.map((t) => {
             const Icon = t.icon;
             return (
               <div key={t.title} className="p-6 flex flex-col justify-between space-y-4 bg-white hover:bg-surface/50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-black bg-black text-[#ffc700] px-2 py-0.5 rounded-none">
+                    <span className="font-mono text-sm font-black bg-black text-brand px-2 py-0.5 rounded-none">
                       {t.count}
                     </span>
                     <div>
@@ -332,7 +332,7 @@ export default function Home() {
                       <p className="text-[10px] text-muted font-medium mt-0.5">{t.desc}</p>
                     </div>
                   </div>
-                  <div className="p-2 border border-[#c8c8d0] bg-white text-foreground shrink-0">
+                  <div className="p-2 border border-border bg-white text-foreground shrink-0">
                     <Icon size={16} />
                   </div>
                 </div>
@@ -344,8 +344,8 @@ export default function Home() {
 
       {/* ── SECTION 6: HALL OF ENGINEERS (DARK NIGHT WITH REAL AVATARS & STANDARDIZED TAGS) ── */}
       <div className="-mx-6 overflow-hidden my-8">
-        <SectionDivider position="top" variant="wave" fillColor="fill-[#0f172a]" />
-        <div className="bg-[#0f172a] text-white py-10 px-6 md:px-12 shadow-xl">
+        <SectionDivider position="top" variant="wave" fillColor="fill-[var(--color-foreground)]" />
+        <div className="bg-foreground text-white py-10 px-6 md:px-12 shadow-xl">
           <div className="mx-auto max-w-[1360px] grid grid-cols-1 lg:grid-cols-2 gap-8 divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
             
             {/* Hall of Engineers Rankings — Task A: sample data label */}
@@ -459,12 +459,12 @@ export default function Home() {
 
           </div>
         </div>
-        <SectionDivider position="bottom" variant="wave" fillColor="fill-[#0f172a]" />
+        <SectionDivider position="bottom" variant="wave" fillColor="fill-[var(--color-foreground)]" />
       </div>
 
       {/* ── SECTION 7: BALANCED HEIGHT CLOSING PANEL (FAQ + FINAL CTA) ── */}
-      <div className="border border-[#c8c8d0] rounded-none bg-white/80 backdrop-blur-md shadow-2xs my-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-[#c8c8d0]">
+      <div className="border border-border rounded-none bg-white/80 backdrop-blur-md shadow-2xs my-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border">
           
           {/* FAQ Accordion (Left 2/3) */}
           <div className="p-8 lg:col-span-2 space-y-6">
@@ -480,7 +480,7 @@ export default function Home() {
           </div>
 
           {/* Final Call To Action (Right 1/3) - Height Balanced with FAQ */}
-          <div className="p-8 flex flex-col justify-between space-y-6 bg-gradient-to-b from-[#ffc700]/20 via-transparent to-transparent">
+          <div className="p-8 flex flex-col justify-between space-y-6 bg-gradient-to-b from-brand/20 via-transparent to-transparent">
             <div className="space-y-3">
               <span className="text-[10px] font-black uppercase tracking-widest text-rose-600 block">
                 Final Call
@@ -495,7 +495,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[#c8c8d0]">
+            <div className="space-y-4 pt-4 border-t border-border">
               <Link href="/assessment" className="block">
                 <Button variant="dark" size="lg" className="w-full gap-2 font-black uppercase tracking-wider text-xs py-5 rounded-none shadow-xs">
                   Take Reality Check <ArrowRight size={16} />

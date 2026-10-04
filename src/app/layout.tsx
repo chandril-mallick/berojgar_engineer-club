@@ -90,7 +90,7 @@ export const metadata: Metadata = {
 
   // ── Theme ───────────────────────────────────────────────────────────────
   other: {
-    "theme-color": "#0f0f0f",
+    "theme-color": "var(--color-foreground)",
     "color-scheme": "light",
   },
 };

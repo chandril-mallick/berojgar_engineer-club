@@ -102,7 +102,7 @@ export function MemeFeed() {
         id: `m-${Date.now()}`,
         author: newCategory === "Confession" ? "Anonymous Engineer" : user?.displayName || "You",
         college: "Your College",
-        avatarColor: "#8b5cf6",
+        avatarColor: "var(--color-brand)",
         caption: newCaption.trim(),
         category: newCategory,
         likes: 1,

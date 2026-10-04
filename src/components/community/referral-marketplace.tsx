@@ -136,7 +136,7 @@ export function ReferralMarketplace() {
     <div className="mx-auto max-w-4xl space-y-8 py-4">
       
       {/* ── HEADER ── */}
-      <div className="border border-[#c8c8d0] bg-white p-6 md:p-8 shadow-2xs space-y-3">
+      <div className="border border-border bg-white p-6 md:p-8 shadow-2xs space-y-3">
         <div className="flex items-center gap-2">
           <Handshake size={18} className="text-black" />
           <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted">
@@ -153,8 +153,8 @@ export function ReferralMarketplace() {
 
       {/* ── MY REFERRAL QUEUE STATUS ── */}
       {myQueue.length > 0 && (
-        <div className="border border-[#c8c8d0] bg-white p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#c8c8d0] pb-3">
+        <div className="border border-border bg-white p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2">
               <Clock size={15} className="text-muted" />
               <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
@@ -170,7 +170,7 @@ export function ReferralMarketplace() {
             {myQueue.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-[#c8c8d0] bg-surface p-4 text-xs font-mono"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-border bg-surface p-4 text-xs font-mono"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -219,7 +219,7 @@ export function ReferralMarketplace() {
       )}
 
       {/* ── INTAKE FORM / SUCCESS CONFIRMATION ── */}
-      <div className="border border-[#c8c8d0] bg-white p-6 md:p-8 space-y-6">
+      <div className="border border-border bg-white p-6 md:p-8 space-y-6">
         
         {submittedSuccess ? (
           /* ── POST-SUBMIT CONFIRMATION ── */
@@ -258,7 +258,7 @@ export function ReferralMarketplace() {
         ) : (
           /* ── SINGLE INTAKE FORM ── */
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="border-b border-[#c8c8d0] pb-3">
+            <div className="border-b border-border pb-3">
               <h2 className="font-heading text-lg font-bold text-foreground">
                 Submit Referral Profile
               </h2>
@@ -279,7 +279,7 @@ export function ReferralMarketplace() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Priyam Das"
-                className="w-full border border-[#c8c8d0] bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
+                className="w-full border border-border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
               />
             </div>
 
@@ -295,7 +295,7 @@ export function ReferralMarketplace() {
                 value={college}
                 onChange={(e) => setCollege(e.target.value)}
                 placeholder="e.g. Brainware University / IIT Kharagpur / VIT Vellore"
-                className="w-full border border-[#c8c8d0] bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
+                className="w-full border border-border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
               />
             </div>
 
@@ -311,7 +311,7 @@ export function ReferralMarketplace() {
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
                   placeholder="e.g. Computer Science & AI"
-                  className="w-full border border-[#c8c8d0] bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
+                  className="w-full border border-border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
                 />
               </div>
 
@@ -323,7 +323,7 @@ export function ReferralMarketplace() {
                   required
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                  className="w-full border border-[#c8c8d0] bg-white px-3 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors cursor-pointer"
+                  className="w-full border border-border bg-white px-3 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors cursor-pointer"
                 >
                   <option value="1st Year">1st Year</option>
                   <option value="2nd Year">2nd Year</option>
@@ -350,7 +350,7 @@ export function ReferralMarketplace() {
                 }}
                 placeholder="https://github.com/your-username"
                 className={`w-full border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors ${
-                  githubError ? "border-rose-500 bg-rose-50/20" : "border-[#c8c8d0]"
+                  githubError ? "border-rose-500 bg-rose-50/20" : "border-border"
                 }`}
               />
               {githubError ? (
@@ -376,7 +376,7 @@ export function ReferralMarketplace() {
                 value={resumeUrl}
                 onChange={(e) => setResumeUrl(e.target.value)}
                 placeholder="https://drive.google.com/file/d/your-resume-pdf"
-                className="w-full border border-[#c8c8d0] bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
+                className="w-full border border-border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
               />
               <p className="font-mono text-[10px] text-muted">
                 Ensure Google Drive link permissions are set to &ldquo;Anyone with link can view&rdquo;.
@@ -394,7 +394,7 @@ export function ReferralMarketplace() {
                 value={targetCompany}
                 onChange={(e) => setTargetCompany(e.target.value)}
                 placeholder="e.g. Google, Amazon, Swiggy, TCS Digital"
-                className="w-full border border-[#c8c8d0] bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
+                className="w-full border border-border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
               />
             </div>
 
@@ -414,7 +414,7 @@ export function ReferralMarketplace() {
                 value={pitch}
                 onChange={(e) => setPitch(e.target.value)}
                 placeholder="e.g. 350+ LeetCode solved, built a real-time collaborative IDE in Rust."
-                className="w-full border border-[#c8c8d0] bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
+                className="w-full border border-border bg-white px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-black outline-none transition-colors"
               />
             </div>
 

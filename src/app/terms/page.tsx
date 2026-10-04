@@ -1,5 +1,7 @@
 // Not legal advice. Have a lawyer review before launch.
 import Link from "next/link";
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeading, Eyebrow } from "@/components/shared/section-heading";
 
 const LAST_UPDATED = "[PLACEHOLDER: insert date, e.g. October 2026]";
 const LEGAL_ENTITY = "[PLACEHOLDER: legal entity name, e.g. BEC Technologies Pvt. Ltd.]";
@@ -28,11 +30,11 @@ function Placeholder({ text }: { text: string }) {
 
 export default function TermsPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-10 py-4">
+    <PageContainer size="narrow">
       {/* Header */}
       <div className="border-b border-border pb-6">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-1">Legal</p>
-        <h1 className="font-heading text-2xl font-bold text-foreground">Terms of Service</h1>
+        <Eyebrow>Legal</Eyebrow>
+        <PageHeading>Terms of Service</PageHeading>
         <p className="mt-2 text-xs text-muted">
           Last updated: <Placeholder text={LAST_UPDATED} />
         </p>
@@ -214,6 +216,6 @@ export default function TermsPage() {
           <Link href="/cookies" className="text-foreground underline hover:opacity-70">Cookie Settings</Link>
         </div>
       </Section>
-    </div>
+    </PageContainer>
   );
 }

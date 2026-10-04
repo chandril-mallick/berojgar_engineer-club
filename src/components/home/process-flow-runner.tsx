@@ -39,9 +39,9 @@ export function ProcessFlowRunner() {
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* Running Progress Bar */}
-      <div className="relative w-full h-1 bg-[#c8c8d0]/40 overflow-hidden rounded-full">
+      <div className="relative w-full h-1 bg-border/40 overflow-hidden rounded-full">
         <motion.div
-          className="h-full bg-[#ffc700]"
+          className="h-full bg-brand"
           initial={{ width: "0%" }}
           animate={{ width: `${((activeStep + 1) / STEPS.length) * 100}%` }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -62,10 +62,10 @@ export function ProcessFlowRunner() {
                 className={cn(
                   "relative px-3 py-1.5 border transition-all duration-200 uppercase select-none flex items-center gap-1.5",
                   isActive
-                    ? "bg-[#ffc700] text-black border-black shadow-xs font-black scale-105"
+                    ? "bg-brand text-black border-black shadow-xs font-black scale-105"
                     : isFinal
                     ? "bg-black text-white border-black"
-                    : "bg-surface border-[#c8c8d0] text-foreground/80 hover:border-black/50"
+                    : "bg-surface border-border text-foreground/80 hover:border-black/50"
                 )}
               >
                 {/* Active Running Motion Dot */}
