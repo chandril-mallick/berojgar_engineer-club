@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { EngineerCard } from "@/components/shared/engineer-card";
 import { XpBar } from "@/components/shared/xp-bar";
@@ -14,32 +14,49 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { DEFAULT_USER_XP, awardXP, getLevelInfo, getLevelProgress } from "@/lib/xp";
-import { getStats, ProgressStats } from "@/lib/progress";
+import { getStats, getProgress, getLocalDateString, ProgressStats, ProgressEntry } from "@/lib/progress";
 import { ALL_BADGES, getBadgeById, RARITY_COLORS } from "@/lib/achievements";
 import { UserXP, BadgeDefinition, ScoreResult } from "@/types";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getUserAvatarUrl } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Trophy, 
-  Flame, 
-  Sparkles, 
-  ExternalLink, 
-  CheckCircle2, 
-  Lock, 
-  Share2, 
-  Code2, 
-  Zap, 
-  Award, 
-  Clock, 
+import {
+  Trophy,
+  Flame,
+  Sparkles,
+  ExternalLink,
+  CheckCircle2,
+  Lock,
+  Share2,
+  Code2,
+  Zap,
+  Award,
+  Clock,
   X,
   Building2,
   GraduationCap,
   ShieldCheck,
-  Check
+  Check,
+  ArrowRight,
+  BarChart3,
+  CalendarDays,
+  BookOpen
 } from "lucide-react";
 
 const OFFER_OPTIONS = ["Actively Hunting", "Placed! 🎉", "Open to Work", "Not looking yet"];
+
+// ── 7-day strip helper ──────────────────────────────────────────────────────
+function buildWeekStrip(grindDates: Set<string>): { date: string; label: string; done: boolean }[] {
+  const result = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = getLocalDateString(d);
+    const label = i === 0 ? "Today" : d.toLocaleDateString("en-US", { weekday: "short" });
+    result.push({ date: dateStr, label, done: grindDates.has(dateStr) });
+  }
+  return result;
+}
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -59,21 +76,44 @@ export default function ProfilePage() {
 
   const [completedSlugs] = useLocalStorage<string[]>("bec-rwdsa-completed", []);
   const [offerStatus, setOfferStatus] = useState("Actively Hunting");
-  
-  // Unified Stats
+
+  // ── Unified Progress Stats (loaded on client only) ──
   const [progressStats, setProgressStats] = useState<ProgressStats>({
+    dsaSolved: 0,
+    dsaByDifficulty: { Easy: 0, Medium: 0, Hard: 0, Unknown: 0 },
+    recentSolves: [],
+    dailyCompletions: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    totalXPEarned: 0,
+    recent: [],
+    // Legacy aliases
     totalXP: 0,
     streak: 0,
     dsaStats: { total: 0, Easy: 0, Medium: 0, Hard: 0 },
     dailyGrindCount: 0,
   });
 
-  import("react").then(({ useEffect }) => {
-    useEffect(() => {
-      setProgressStats(getStats());
-    }, []);
-  });
-  
+  const [grindDaySet, setGrindDaySet] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    // Load stats client-side (localStorage)
+    const stats = getStats();
+    setProgressStats(stats);
+
+    // Build set of dates where daily-grind was completed (for 7-day strip)
+    const log = getProgress();
+    const dates = new Set(
+      log
+        .filter((e) => e.type === "daily-grind")
+        .map((e) => {
+          const d = new Date(e.completedAt);
+          return getLocalDateString(d);
+        })
+    );
+    setGrindDaySet(dates);
+  }, []);
+
   // Badge Filter State & Selected Badge Modal
   const [selectedRarity, setSelectedRarity] = useState<string>("all");
   const [activeBadgeModal, setActiveBadgeModal] = useState<BadgeDefinition | null>(null);
@@ -90,9 +130,20 @@ export default function ProfilePage() {
     return badge.rarity === selectedRarity;
   });
 
+  const weekStrip = buildWeekStrip(grindDaySet);
+
+  const difficultyConfig = [
+    { key: "Easy",   color: "bg-emerald-500", textColor: "text-emerald-600", label: "Easy" },
+    { key: "Medium", color: "bg-amber-500",   textColor: "text-amber-600",   label: "Medium" },
+    { key: "Hard",   color: "bg-rose-500",    textColor: "text-rose-600",    label: "Hard" },
+    { key: "Unknown",color: "bg-slate-400",   textColor: "text-slate-500",   label: "Migrated" },
+  ] as const;
+
+  const totalDsaSolved = progressStats.dsaSolved;
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans select-none text-foreground">
-      
+
       {/* ── 1. Unified Page Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border">
         <div className="space-y-1">
@@ -130,7 +181,7 @@ export default function ProfilePage() {
 
       {/* ── 2. Upper Primary Section: Card & Controls (Unified 2-Column Grid) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
+
         {/* Left Column: Shareable Engineer Card */}
         <div className="lg:col-span-5 space-y-3">
           <div className="flex items-center justify-between">
@@ -140,7 +191,7 @@ export default function ProfilePage() {
             </h2>
             <span className="text-[11px] font-mono text-muted">Shareable Card</span>
           </div>
-          
+
           <EngineerCard
             name={user?.displayName || "Anonymous Engineer"}
             photoUrl={getUserAvatarUrl(user)}
@@ -156,7 +207,7 @@ export default function ProfilePage() {
 
         {/* Right Column: Unified Career Controls & XP Level Stats Panel */}
         <div className="lg:col-span-7 space-y-5 bg-white border border-border rounded-2xl p-6 shadow-xs">
-          
+
           {/* Placement Status Selector */}
           <div className="space-y-2.5 pb-4 border-b border-border">
             <label className="text-xs font-bold uppercase tracking-wider text-muted font-mono flex items-center gap-1.5">
@@ -196,11 +247,11 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
             <div className="p-3 rounded-xl bg-surface border border-border">
               <p className="text-muted text-[10px] uppercase font-bold">Daily Streak</p>
-              <p className="text-base font-bold text-foreground mt-0.5">{progressStats.streak} Days 🔥</p>
+              <p className="text-base font-bold text-foreground mt-0.5">{progressStats.currentStreak} Days 🔥</p>
             </div>
             <div className="p-3 rounded-xl bg-surface border border-border">
               <p className="text-muted text-[10px] uppercase font-bold">Solved Labs</p>
-              <p className="text-base font-bold text-emerald-600 mt-0.5">{progressStats.dsaStats.total} Solved</p>
+              <p className="text-base font-bold text-emerald-600 mt-0.5">{progressStats.dsaSolved} Solved</p>
             </div>
             <div className="p-3 rounded-xl bg-surface border border-border">
               <p className="text-muted text-[10px] uppercase font-bold">Badges</p>
@@ -215,52 +266,217 @@ export default function ProfilePage() {
 
       </div>
 
-      {/* ── 2.5 Coding Activity & DSA Stats ── */}
+      {/* ── 2.5 Coding Activity — DSA Lab Stats ── */}
       <section className="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-6">
-        <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2 pb-3 border-b border-border">
-          <Code2 size={18} className="text-emerald-500" />
-          <span>DSA Lab &amp; Daily Grind Stats</span>
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
-            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Easy</p>
-            <p className="text-xl font-bold text-emerald-600">{progressStats.dsaStats.Easy}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
-            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Medium</p>
-            <p className="text-xl font-bold text-amber-500">{progressStats.dsaStats.Medium}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
-            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Hard</p>
-            <p className="text-xl font-bold text-red-500">{progressStats.dsaStats.Hard}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-surface/50 border border-border text-center">
-            <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Daily Grinds</p>
-            <p className="text-xl font-bold text-foreground">{progressStats.dailyGrindCount}</p>
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
+          <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
+            <Code2 size={18} className="text-emerald-500" />
+            <span>DSA Lab Progress</span>
+          </h2>
+          {totalDsaSolved > 0 && (
+            <Link
+              href="/real-world-dsa"
+              className="flex items-center gap-1 text-xs font-bold font-mono text-muted hover:text-foreground transition-colors"
+            >
+              <span>View All Problems</span>
+              <ArrowRight size={13} />
+            </Link>
+          )}
         </div>
-        {progressStats.dsaStats.total === 0 && progressStats.dailyGrindCount === 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 flex items-start gap-3">
-            <Flame className="shrink-0 mt-0.5" size={16} />
+
+        {totalDsaSolved === 0 ? (
+          /* Empty state */
+          <div className="flex flex-col items-center text-center py-10 space-y-4">
+            <div className="p-4 rounded-2xl bg-surface border border-border text-emerald-500">
+              <BookOpen size={32} />
+            </div>
             <div>
-              <p className="font-bold">No coding activity yet.</p>
-              <p className="mt-1 opacity-80">Start your journey in the <Link href="/real-world-dsa" className="underline font-semibold">DSA Lab</Link> or complete today's Daily Grind on the dashboard to build your streak!</p>
+              <p className="font-bold text-foreground font-heading">No DSA solves yet</p>
+              <p className="text-xs text-muted mt-1 max-w-xs">
+                Start solving real-world engineering problems to track your progress here.
+              </p>
+            </div>
+            <Link href="/real-world-dsa">
+              <Button variant="dark" size="sm" className="gap-1.5 text-xs font-bold">
+                <span>Start your first lab</span>
+                <ArrowRight size={13} />
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Total + Difficulty breakdown */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-surface border border-border text-center">
+                <p className="text-xs text-muted font-mono uppercase font-bold mb-1">Total Solved</p>
+                <p className="text-2xl font-bold text-foreground">{totalDsaSolved}</p>
+              </div>
+              {difficultyConfig.map(({ key, textColor, label }) => (
+                <div key={key} className="p-4 rounded-xl bg-surface border border-border text-center">
+                  <p className="text-xs text-muted font-mono uppercase font-bold mb-1">{label}</p>
+                  <p className={`text-2xl font-bold ${textColor}`}>
+                    {progressStats.dsaByDifficulty[key as keyof typeof progressStats.dsaByDifficulty]}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Difficulty bars */}
+            <div className="space-y-2">
+              {difficultyConfig.map(({ key, color, label }) => {
+                const count = progressStats.dsaByDifficulty[key as keyof typeof progressStats.dsaByDifficulty];
+                const pct = totalDsaSolved > 0 ? Math.round((count / totalDsaSolved) * 100) : 0;
+                if (count === 0) return null;
+                return (
+                  <div key={key} className="flex items-center gap-3 font-mono text-xs">
+                    <span className="w-16 text-right text-muted">{label}</span>
+                    <div className="flex-1 h-2 rounded-full bg-surface border border-border overflow-hidden">
+                      <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="w-8 font-bold text-foreground">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 5 most recent solves */}
+            {progressStats.recentSolves.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+                  5 Most Recent Solves
+                </h3>
+                <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+                  {progressStats.recentSolves.map((entry) => {
+                    const dateStr = entry.completedAt === new Date(0).toISOString()
+                      ? "Migrated"
+                      : new Date(entry.completedAt).toLocaleDateString("en-IN", {
+                          day: "numeric", month: "short", year: "numeric"
+                        });
+                    const diffColor =
+                      entry.difficulty === "Easy" ? "text-emerald-600 bg-emerald-50 border-emerald-200" :
+                      entry.difficulty === "Medium" ? "text-amber-600 bg-amber-50 border-amber-200" :
+                      entry.difficulty === "Hard" ? "text-rose-600 bg-rose-50 border-rose-200" :
+                      "text-slate-500 bg-slate-50 border-slate-200";
+                    return (
+                      <div key={entry.id} className="flex items-center justify-between px-4 py-3 bg-white hover:bg-surface transition-colors">
+                        <div className="flex items-center gap-2.5">
+                          <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                          <span className="text-xs font-semibold text-foreground">{entry.title}</span>
+                        </div>
+                        <div className="flex items-center gap-2 font-mono text-[11px]">
+                          {entry.difficulty && (
+                            <span className={`px-2 py-0.5 rounded border font-bold ${diffColor}`}>
+                              {entry.difficulty}
+                            </span>
+                          )}
+                          <span className="text-muted">{dateStr}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* ── 3. Daily Grind Streak Section ── */}
+      <section className="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
+          <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
+            <Flame size={18} className="text-amber-500" />
+            <span>Daily Grind Streak</span>
+          </h2>
+          <Link
+            href="/daily-challenge"
+            className="flex items-center gap-1 text-xs font-bold font-mono text-muted hover:text-foreground transition-colors"
+          >
+            <span>Go to Today&apos;s Grind</span>
+            <ArrowRight size={13} />
+          </Link>
+        </div>
+
+        {progressStats.dailyCompletions === 0 ? (
+          <div className="flex flex-col items-center text-center py-10 space-y-4">
+            <div className="p-4 rounded-2xl bg-surface border border-border text-amber-500">
+              <Flame size={32} />
+            </div>
+            <div>
+              <p className="font-bold text-foreground font-heading">No daily grinds completed yet</p>
+              <p className="text-xs text-muted mt-1 max-w-xs">
+                Complete the 5-part daily challenge to build your streak and earn +150 XP per day.
+              </p>
+            </div>
+            <Link href="/daily-challenge">
+              <Button variant="dark" size="sm" className="gap-1.5 text-xs font-bold">
+                <span>Start today&apos;s challenge</span>
+                <ArrowRight size={13} />
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Streak metrics */}
+            <div className="grid grid-cols-3 gap-4 font-mono text-xs">
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                <p className="text-amber-700 text-[10px] uppercase font-bold mb-1">Current Streak</p>
+                <p className="text-2xl font-bold text-amber-700 flex items-center justify-center gap-1">
+                  <Flame size={20} className="fill-amber-400 text-amber-500" />
+                  {progressStats.currentStreak}
+                </p>
+                <p className="text-[10px] text-amber-600 mt-0.5">consecutive days</p>
+              </div>
+              <div className="p-4 rounded-xl bg-surface border border-border text-center">
+                <p className="text-muted text-[10px] uppercase font-bold mb-1">Longest Streak</p>
+                <p className="text-2xl font-bold text-foreground">{progressStats.longestStreak}</p>
+                <p className="text-[10px] text-muted mt-0.5">days all-time</p>
+              </div>
+              <div className="p-4 rounded-xl bg-surface border border-border text-center">
+                <p className="text-muted text-[10px] uppercase font-bold mb-1">Total Days</p>
+                <p className="text-2xl font-bold text-foreground">{progressStats.dailyCompletions}</p>
+                <p className="text-[10px] text-muted mt-0.5">grinds completed</p>
+              </div>
+            </div>
+
+            {/* 7-day strip */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted font-mono flex items-center gap-1.5">
+                <CalendarDays size={13} />
+                <span>Last 7 Days</span>
+              </h3>
+              <div className="flex items-center gap-2">
+                {weekStrip.map(({ date, label, done }) => (
+                  <div key={date} className="flex-1 flex flex-col items-center gap-1.5">
+                    <div
+                      className={`w-full aspect-square rounded-lg border-2 flex items-center justify-center transition-all ${
+                        done
+                          ? "bg-amber-400 border-amber-500 text-white shadow-xs"
+                          : "bg-surface border-border text-muted"
+                      }`}
+                    >
+                      {done ? <Flame size={14} className="fill-white text-white" /> : <span className="text-[10px]">—</span>}
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-muted">{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
       </section>
 
-      {/* ── 3. Daily Grind & Contribution Heatmap ── */}
+      {/* ── 4. Daily Grind & Contribution Heatmap ── */}
       <section>
         <ActivityHeatmap
-          streak={progressStats.streak || userXP.streak}
+          streak={progressStats.currentStreak || userXP.streak}
           totalXP={userXP.total}
-          completedCount={progressStats.dsaStats.total || completedSlugs.length}
+          completedCount={progressStats.dsaSolved || completedSlugs.length}
           userXP={userXP}
         />
       </section>
 
-      {/* ── 4. Achievements & Badges Showcase Grid ── */}
+      {/* ── 5. Achievements & Badges Showcase Grid ── */}
       <section className="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
           <div>
@@ -440,7 +656,7 @@ export default function ProfilePage() {
         )}
       </AnimatePresence>
 
-      {/* ── 5. Recent Verified Activity Stream ── */}
+      {/* ── 6. Recent Verified Activity Stream ── */}
       <section className="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
         <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2 pb-3 border-b border-border">
           <Clock size={18} className="text-amber-500" />

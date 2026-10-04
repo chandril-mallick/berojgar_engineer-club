@@ -9,7 +9,6 @@ import {
   Code,
   CheckCircle2,
   XCircle,
-  Zap,
   Flame,
   Trophy,
   ChevronRight,
@@ -39,7 +38,7 @@ import { getDSAChallenges } from "@/app/actions/dsa";
 
 import { useAuth } from "@/hooks/use-auth";
 import { recordWorkSubmission } from "@/services/task-service";
-import { logProgress } from "@/lib/progress";
+import { logProgress, hasCompletedGrindToday, getStats } from "@/lib/progress";
 
 export function DailyChallengeWidget() {
   const { user } = useAuth();
@@ -67,6 +66,16 @@ export function DailyChallengeWidget() {
   const [aiAns, setAiAns] = useState<number | null>(null);
   const [dsaSubmitted, setDsaSubmitted] = useState<boolean>(false);
   const [completed, setCompleted] = useState<boolean>(false);
+
+  // Guard: has the user already completed the grind today? Checked on mount.
+  const [alreadyDoneToday, setAlreadyDoneToday] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Run only on client after hydration
+    const done = hasCompletedGrindToday();
+    setAlreadyDoneToday(done);
+    if (done) setCompleted(true); // treat as completed for UI
+  }, []);
 
   // Scratchpad state for quizzes
   const [scratchNotes, setScratchNotes] = useState<string>("");
@@ -171,14 +180,31 @@ export function DailyChallengeWidget() {
     }
   };
 
-  const handleFinishChallenge = () => {
-    if (completed) return;
+  const handleFinishChallenge = async () => {
+    if (completed || alreadyDoneToday) return;
 
+    // logProgress dedupes — if already done today it returns blocked
+    const result = await logProgress(user?.uid || null, {
+      type: "daily-grind",
+      refId: "", // overwritten inside logProgress to today's date
+      title: "Daily Coding Challenge Completed",
+      xpEarned: 150,
+    });
+
+    if (result.blocked) {
+      // Already completed today — just update UI state without awarding XP
+      setAlreadyDoneToday(true);
+      setCompleted(true);
+      return;
+    }
+
+    // Award XP — read real streak from the progress log (after writing above)
+    const stats = getStats();
     const updated = awardXP("challenge_complete", userXP, "Completed Daily Engineering Challenge (+150 XP)");
     setUserXP({
       ...updated,
-      total: updated.total + 100, // Bonus XP increment
-      streak: (updated.streak || 0) + 1,
+      total: updated.total + 100,
+      streak: stats.currentStreak, // real streak from progress log
     });
     setCompleted(true);
 
@@ -189,13 +215,6 @@ export function DailyChallengeWidget() {
         payload: { date: new Date().toISOString(), xp: 150 },
       });
     }
-
-    logProgress(user?.uid || null, {
-      type: "daily-grind",
-      refId: new Date().toISOString().split("T")[0],
-      title: "Daily Coding Challenge Completed",
-      xpEarned: 150,
-    });
   };
 
   const codeLines = sourceCode.split("\n");
@@ -215,8 +234,8 @@ export function DailyChallengeWidget() {
         {/* Left: Title & Streak */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/20">
-              <Zap size={16} />
+            <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <img src="/leetcode-icon.png" alt="Daily Grind Icon" className="w-4 h-4 object-contain" />
             </div>
             <div>
               <h1 className="font-heading font-bold text-base text-foreground leading-none">
@@ -288,14 +307,19 @@ export function DailyChallengeWidget() {
           <Button
             variant="dark"
             size="sm"
-            disabled={completed}
+            disabled={completed || alreadyDoneToday}
             onClick={handleFinishChallenge}
-            className="gap-1.5 text-xs font-bold"
+            className={`gap-1.5 text-xs font-bold ${alreadyDoneToday && !completed ? "opacity-80 cursor-not-allowed" : ""}`}
           >
-            {completed ? (
+            {alreadyDoneToday && !completed ? (
+              <span className="flex items-center gap-1 text-amber-300">
+                <CheckCircle2 size={13} />
+                <span>Done for today — come back tomorrow!</span>
+              </span>
+            ) : completed ? (
               <span className="flex items-center gap-1 text-emerald-300">
                 <CheckCircle2 size={13} />
-                <span>Challenge Completed (+150 XP)</span>
+                <span>{alreadyDoneToday ? "Already completed today ✓" : "Challenge Completed (+150 XP)"}</span>
               </span>
             ) : (
               <span className="flex items-center gap-1">
