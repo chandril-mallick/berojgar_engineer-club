@@ -141,9 +141,11 @@ export default function DashboardPage() {
 
       {/* ── Today's Challenge ── */}
       <section>
+        {/* Task A: challenge pool is pre-seeded mock data, labeled for transparency */}
         <div className="flex items-center gap-2 mb-5">
           <Target size={14} className="text-muted" />
           <h2 className="text-sm font-semibold text-foreground">Today&apos;s Challenge</h2>
+          <span className="text-[10px] text-muted font-mono border border-border rounded-full px-2 py-0.5">sample</span>
           <span className="ml-auto text-xs text-muted font-mono">+{todayChallenge.xpReward} XP</span>
         </div>
         <div className="flex items-start gap-4 rounded-[10px] border border-border p-4">

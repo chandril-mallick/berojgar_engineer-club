@@ -98,6 +98,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { AuthModal } from "@/components/shared/auth-modal";
 import { GlobalAuthGuard } from "@/components/shared/global-auth-guard";
+import { CookieConsentBanner } from "@/components/shared/cookie-consent-banner";
 
 export default function RootLayout({
   children,
@@ -119,6 +120,7 @@ export default function RootLayout({
             </main>
             <SiteFooter />
             <AuthModal />
+            <CookieConsentBanner />
           </QueryProvider>
         </AuthProvider>
       </body>

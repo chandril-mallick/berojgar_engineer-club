@@ -2,7 +2,7 @@
 
 > **Version:** 1.0.0  
 > **Status:** Product specification — partially implemented  
-> **Author:** DeepMind Agentic Engineering & Product Team  
+> **Author:** Berojgar Engineer Club — maintainers (see repository contributors)  
 > **Last Updated:** September 2026  
 > **Target Audience:** Product Managers, Full-Stack Engineers, AI Specialists, Community Managers  
 

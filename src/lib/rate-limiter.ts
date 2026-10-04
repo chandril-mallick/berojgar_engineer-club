@@ -12,7 +12,15 @@ interface RateLimitEntry {
   windowStart: number;
 }
 
-// Module-level store persists across requests in the same lambda instance
+// Module-level store persists across requests in the same lambda instance.
+//
+// ⚠️  SERVERLESS WARNING (Task E): On Vercel (and any serverless platform) each
+// cold-started function instance gets its OWN independent Map. Concurrent
+// traffic will be spread across N instances, so the effective per-IP limit is
+// N × limit rather than the configured limit. This in-memory fallback is safe
+// only for local development and single-instance deployments.
+// Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN to enable the
+// distributed Upstash Redis limiter, which is correct for production.
 const store = new Map<string, RateLimitEntry>();
 
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;

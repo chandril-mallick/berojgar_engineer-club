@@ -348,11 +348,12 @@ export default function Home() {
         <div className="bg-[#0f172a] text-white py-10 px-6 md:px-12 shadow-xl">
           <div className="mx-auto max-w-[1360px] grid grid-cols-1 lg:grid-cols-2 gap-8 divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
             
-            {/* Hall of Engineers Rankings */}
+            {/* Hall of Engineers Rankings — Task A: sample data label */}
             <div className="flex flex-col justify-between space-y-6 pb-6 lg:pb-0 lg:pr-8">
               <div>
+                {/* Task A: Label mock entries as sample data so visitors are never misled */}
                 <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-400 block mb-1">
-                  Live Leaderboard
+                  Sample Data · Illustrative Preview
                 </span>
                 <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase scale-y-110 origin-left mb-6">
                   HALL OF ENGINEERS
@@ -406,11 +407,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Social Proof (Recently Escaped Students) */}
+            {/* Social Proof (Recently Escaped Students) — Task A: sample data label */}
             <div className="flex flex-col justify-between space-y-6 pt-6 lg:pt-0 lg:pl-8">
               <div>
+                {/* Task A: Label mock entries as sample data */}
                 <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-400 block mb-1">
-                  Verified Outcomes
+                  Sample Data · Illustrative Outcomes
                 </span>
                 <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase scale-y-110 origin-left mb-6">
                   RECENTLY ESCAPED

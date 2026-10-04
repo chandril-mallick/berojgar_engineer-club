@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import { LEADERBOARD_DATA } from "@/lib/mock-data";
 import { getBadgeById } from "@/lib/achievements";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trophy, Award } from "lucide-react";
+import { Trophy, Award, AlertCircle } from "lucide-react";
 import { BranchLeaderboard } from "@/components/community/branch-leaderboard";
 
-import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { UserXP, LeaderboardEntry } from "@/types";
 import { DEFAULT_USER_XP } from "@/lib/xp";
-import { getUserFirestoreProfile } from "@/lib/firestore-service";
+import { getUserFirestoreProfile, getTopFirestoreUsers } from "@/lib/firestore-service";
+import { isFirebaseConfigured } from "@/lib/firebase";
 
 interface LeaderboardProfile {
   college?: string;
@@ -56,24 +56,62 @@ export default function LeaderboardPage() {
   const [year, setYear] = useState("All");
   const [state, setState] = useState("All");
   const [profile, setProfile] = useState<LeaderboardProfile | null>(null);
+  // Task A: track whether we have real Firestore data or are showing mock data
+  const [usingMockData, setUsingMockData] = useState(true);
+  const [firestoreEntries, setFirestoreEntries] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
     if (!user) {
       queueMicrotask(() => setProfile(null));
-      return;
-    }
-    const uid = user.uid;
-    async function fetchProfile() {
-      const res = await getUserFirestoreProfile(uid);
-      if (res.success && res.data) {
-        setProfile(res.data as LeaderboardProfile);
+    } else {
+      const uid = user.uid;
+      async function fetchProfile() {
+        const res = await getUserFirestoreProfile(uid);
+        if (res.success && res.data) {
+          setProfile(res.data as LeaderboardProfile);
+        }
       }
+      fetchProfile();
     }
-    fetchProfile();
   }, [user]);
 
+  // Task A: Try to load real leaderboard entries from Firestore
+  useEffect(() => {
+    if (!isFirebaseConfigured) {
+      setUsingMockData(true);
+      return;
+    }
+    async function fetchLeaderboard() {
+      const res = await getTopFirestoreUsers();
+      if (res.success && res.data && res.data.length > 0) {
+        // Map Firestore user docs to LeaderboardEntry shape
+        const mapped: LeaderboardEntry[] = (res.data as Record<string, unknown>[]).map((u, idx) => ({
+          rank: idx + 1,
+          name: (u.displayName as string) || "Anonymous Engineer",
+          college: (u.college as string) || "Engineering College",
+          branch: (u.branch as string) || "CSE",
+          state: (u.state as string) || "India",
+          year: (u.year as string) || "4",
+          score: (u.berojgarScore as number) || 0,
+          projects: (u.completedTasksCount as number) || 0,
+          xp: (u.xp as number) || 0,
+          // LeaderboardEntry.offer is string | null, not string | undefined
+          offer: (u.targetCompany as string) || null,
+          badgeIds: [],
+          avatarColor: "#6366f1",
+        }));
+        setFirestoreEntries(mapped);
+        setUsingMockData(false);
+      } else {
+        setUsingMockData(true);
+      }
+    }
+    fetchLeaderboard();
+  }, []);
+
   // Construct combined leaderboard list merging seed entries + logged-in user
-  const combined: LeaderboardEntry[] = [...LEADERBOARD_DATA];
+  const baseEntries = usingMockData ? LEADERBOARD_DATA : firestoreEntries;
+  const combined: LeaderboardEntry[] = [...baseEntries];
 
   if (user) {
     const userDisplayName = user.displayName || user.email?.split("@")[0] || "You";
@@ -155,7 +193,9 @@ export default function LeaderboardPage() {
               </div>
               <h1 className="font-heading text-2xl font-bold text-foreground">Hall of Engineers</h1>
               <p className="mt-1 text-sm text-muted">
-                The most employable engineers in the country. Updated in real-time.
+                {usingMockData
+                  ? "Sample data preview — connect Firestore for the live leaderboard."
+                  : "The most employable engineers in the country. Updated in real-time."}
               </p>
             </div>
 
@@ -168,11 +208,25 @@ export default function LeaderboardPage() {
                 XP
               </div>
               <div className="text-left">
-                <p className="text-xs font-bold text-foreground">My XP & Rank</p>
-                <p className="text-[11px] text-amber-900 font-mono">View Achievements & Perks →</p>
+                <p className="text-xs font-bold text-foreground">My XP &amp; Rank</p>
+                <p className="text-[11px] text-amber-900 font-mono">View Achievements &amp; Perks →</p>
               </div>
             </a>
           </div>
+
+          {/* Task A: Sample-data banner — always visible when using mock data */}
+          {usingMockData && (
+            <div className="flex items-start gap-3 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" />
+              <div>
+                <span className="font-semibold">Sample data</span> — these are illustrative entries, not real users.{" "}
+                <a href="/docs/firebase-setup" className="underline hover:text-amber-700">
+                  Connect Firestore
+                </a>{" "}
+                to see the live leaderboard.
+              </div>
+            </div>
+          )}
 
           {/* ── Time tabs ── */}
           <div className="flex items-center gap-1 border-b border-border">

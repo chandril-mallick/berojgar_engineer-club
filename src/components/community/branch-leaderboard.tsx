@@ -4,7 +4,8 @@ import { useState } from "react";
 import { LEADERBOARD_DATA } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Cpu, Code, Layers, Zap, Wrench, ShieldAlert, Award } from "lucide-react";
+import { Award, AlertCircle } from "lucide-react";
+import { isFirebaseConfigured } from "@/lib/firebase";
 
 const BRANCHES = [
   { id: "CSE", name: "Computer Science", icon: "💻" },
@@ -19,6 +20,10 @@ const BRANCHES = [
 const YEARS = ["All", "1st", "2nd", "3rd", "Final"];
 const STATES = ["All", "West Bengal", "Tamil Nadu", "Gujarat", "Rajasthan", "Maharashtra", "Delhi NCR"];
 
+// Task A: BranchLeaderboard always uses mock data (no per-branch Firestore
+// query implemented yet) and therefore always shows the sample-data banner.
+// When Firestore is configured, the parent LeaderboardPage will serve real
+// data on the "Overall" tab; branch-level queries are a future enhancement.
 export function BranchLeaderboard() {
   const [selectedBranch, setSelectedBranch] = useState("CSE");
   const [selectedYear, setSelectedYear] = useState("All");
@@ -42,6 +47,25 @@ export function BranchLeaderboard() {
         <p className="text-xs text-muted mt-1">
           Compare your score only against peers in your engineering discipline.
         </p>
+      </div>
+
+      {/* Task A: Sample-data banner — always shown; branch-level live data is a future enhancement */}
+      <div className="flex items-start gap-3 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" />
+        <div>
+          <span className="font-semibold">Sample data</span> — these are illustrative entries, not real users.{" "}
+          {!isFirebaseConfigured && (
+            <>
+              <a href="/docs/firebase-setup" className="underline hover:text-amber-700">
+                Connect Firestore
+              </a>{" "}
+              to enable the live leaderboard.
+            </>
+          )}
+          {isFirebaseConfigured && (
+            <>Branch-level live queries are a planned enhancement.</>
+          )}
+        </div>
       </div>
 
       {/* Branch Tabs */}

@@ -240,9 +240,9 @@ export function SiteFooter() {
           <Link href="/terms" className="hover:text-foreground hover:underline underline-offset-4 transition-colors">
             Terms of Service
           </Link>
-          <button className="hover:text-foreground hover:underline underline-offset-4 transition-colors">
+          <Link href="/cookies" className="hover:text-foreground hover:underline underline-offset-4 transition-colors">
             Cookie Settings
-          </button>
+          </Link>
         </div>
       </div>
     </footer>
