@@ -176,11 +176,6 @@ export function SiteFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/ai-coach" className="text-xs text-muted/70 hover:text-foreground transition-colors">
-                    AI Coach
-                  </Link>
-                </li>
-                <li>
                   <Link href="/daily-challenge" className="text-xs text-muted/70 hover:text-foreground transition-colors">
                     Daily Challenge
                   </Link>

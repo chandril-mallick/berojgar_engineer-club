@@ -16,6 +16,14 @@ import { UserXP, LeaderboardEntry } from "@/types";
 import { DEFAULT_USER_XP } from "@/lib/xp";
 import { getUserFirestoreProfile } from "@/lib/firestore-service";
 
+interface LeaderboardProfile {
+  college?: string;
+  branch?: string;
+  year?: string;
+  berojgarScore?: number;
+  answers?: { projects?: number; internships?: number };
+}
+
 const TIME_TABS = ["Weekly", "Monthly", "All Time"] as const;
 type TimeTab = (typeof TIME_TABS)[number];
 
@@ -47,18 +55,18 @@ export default function LeaderboardPage() {
   const [branch, setBranch] = useState("All");
   const [year, setYear] = useState("All");
   const [state, setState] = useState("All");
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<LeaderboardProfile | null>(null);
 
   useEffect(() => {
     if (!user) {
-      setProfile(null);
+      queueMicrotask(() => setProfile(null));
       return;
     }
     const uid = user.uid;
     async function fetchProfile() {
       const res = await getUserFirestoreProfile(uid);
       if (res.success && res.data) {
-        setProfile(res.data);
+        setProfile(res.data as LeaderboardProfile);
       }
     }
     fetchProfile();
@@ -83,7 +91,7 @@ export default function LeaderboardPage() {
       score: profile?.berojgarScore || 82,
       projects: profile?.answers?.projects || 2,
       xp: userXP.total || 120,
-      offer: profile?.answers?.internships > 0 ? "Placed" : "Grinding",
+      offer: (profile?.answers?.internships ?? 0) > 0 ? "Placed" : "Grinding",
       badgeIds: userXP.earnedBadgeIds.length > 0 ? userXP.earnedBadgeIds : ["streak-7", "first-blood", "dsa-hero"],
       avatarColor: "#6366f1",
     };

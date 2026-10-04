@@ -25,6 +25,8 @@ interface QuestionDef {
   options: QuestionOption[];
 }
 
+type AssessmentAnswer = string | number;
+
 const QUESTIONS: QuestionDef[] = [
   {
     id: "year",
@@ -153,7 +155,7 @@ export default function AssessmentPage() {
   const { user, requireAuth } = useAuth();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<Record<string, AssessmentAnswer>>({});
   const [validationError, setValidationError] = useState(false);
   const [isCompletedState, setIsCompletedState] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -232,26 +234,6 @@ export default function AssessmentPage() {
         console.error("Score calculation failed:", err);
         setIsAnalyzing(false);
         return;
-      }
-
-      // Query AI Coach for roast summary
-      try {
-        const promptText = `Student Profile: Branch=${payload.branch}, Year=${payload.year}, CGPA=${payload.cgpa}, Projects=${payload.projects}, Internships=${payload.internships}, GitHub=${payload.github}, DSA=${payload.dsa}/10, Interview=${payload.interviewConfidence}/10, Communication=${payload.communication}/10, Target Role=${payload.targetRole}. Calculated Berojgar Score=${result.score}/100.`;
-
-        const res = await fetch("/api/ai-coach", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: promptText, mode: "assessment" }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data.reply) {
-            result = { ...result, roast: data.reply };
-          }
-        }
-      } catch (err) {
-        console.warn("AI score roast fallback:", err);
       }
 
       window.localStorage.setItem("bec-assessment-input", JSON.stringify(payload));

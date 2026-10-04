@@ -5,6 +5,7 @@ import { Logo } from "@/components/shared/logo";
 import { usePathname, useRouter } from "next/navigation";
 import { cn, getUserAvatarUrl } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
+import type { LucideIcon } from "lucide-react";
 import { 
   Menu, 
   X, 
@@ -18,11 +19,13 @@ import {
   Laugh,
   MessageSquareQuote,
   Share2,
+  Compass,
   FileText,
   Building,
   GraduationCap,
   Award,
-  Info
+  Info,
+  User
 } from "lucide-react";
 import { NotificationCenter } from "@/components/community/notification-center";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +34,7 @@ import { useAuth } from "@/hooks/use-auth";
 interface DropdownItem {
   label: string;
   href: string;
-  icon?: any;
+  icon?: LucideIcon;
 }
 
 export function SiteHeader() {
@@ -63,9 +66,11 @@ export function SiteHeader() {
 
   // Close menus on route change
   useEffect(() => { 
-    setMobileOpen(false);
-    setActiveDropdown(null);
-    setProfileMenuOpen(false);
+    queueMicrotask(() => {
+      setMobileOpen(false);
+      setActiveDropdown(null);
+      setProfileMenuOpen(false);
+    });
   }, [pathname]);
 
   // Handle ESC key navigation & Click Outside
@@ -96,6 +101,7 @@ export function SiteHeader() {
 
   const practiceItems: DropdownItem[] = [
     { label: "Daily Grind", href: "/daily-challenge", icon: Flame },
+    { label: "Career Roadmap", href: "/roadmap", icon: Compass },
     { label: "DSA Lab", href: "/real-world-dsa", icon: Code },
     { label: "Projects", href: "/real-world-dsa", icon: Rocket },
   ];
@@ -104,10 +110,11 @@ export function SiteHeader() {
     { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
     { label: "Engineering Memes", href: "/memes", icon: Laugh },
     { label: "Anonymous Placement Stories", href: "/memes", icon: MessageSquareQuote },
-    { label: "Referral Marketplace", href: "/referrals", icon: Share2 },
+    { label: "Referral Queue", href: "/referrals", icon: Share2 },
   ];
 
   const moreItems: DropdownItem[] = [
+    { label: "Engineer Profile", href: "/profile", icon: User },
     { label: "Resume Roast", href: "/resume", icon: FileText },
     { label: "College Rankings", href: "/leaderboard", icon: GraduationCap },
     { label: "Branch Rankings", href: "/leaderboard", icon: GraduationCap },
@@ -141,7 +148,7 @@ export function SiteHeader() {
         <div className="hidden lg:flex items-center justify-center flex-1" ref={navRef}>
           <nav className="flex items-center gap-1 font-mono text-xs font-bold uppercase tracking-wider">
             
-            {/* 1. Reality Check (Primary Link) */}
+            {/* 1. Reality Check */}
             <Link
               href="/assessment"
               className={cn(
@@ -154,7 +161,21 @@ export function SiteHeader() {
               Reality Check
             </Link>
 
-            {/* 2. Practice Dropdown */}
+            {/* 2. Profile Nav Link */}
+            <Link
+              href="/profile"
+              className={cn(
+                "px-3 py-2 border transition-colors select-none flex items-center gap-1.5",
+                pathname === "/profile"
+                  ? "bg-black text-white border-black font-extrabold"
+                  : "border-transparent text-foreground/80 hover:text-foreground hover:border-[#c8c8d0]"
+              )}
+            >
+              <User size={13} />
+              <span>Profile</span>
+            </Link>
+
+            {/* 3. Practice Dropdown */}
             <div className="relative">
               <button
                 type="button"
@@ -208,7 +229,7 @@ export function SiteHeader() {
               </AnimatePresence>
             </div>
 
-            {/* 3. Community Dropdown */}
+            {/* 4. Community Dropdown */}
             <div className="relative">
               <button
                 type="button"
@@ -262,7 +283,7 @@ export function SiteHeader() {
               </AnimatePresence>
             </div>
 
-            {/* 4. More Dropdown */}
+            {/* 5. More Dropdown */}
             <div className="relative">
               <button
                 type="button"
@@ -319,7 +340,7 @@ export function SiteHeader() {
           </nav>
         </div>
 
-        {/* ── RIGHT: NOTIFICATION, AI COACH, PROFILE ── */}
+        {/* ── RIGHT: NOTIFICATION, PROFILE ── */}
         <div className="flex items-center gap-3 shrink-0">
           
           {/* Notification Icon (Logged in) */}
@@ -328,15 +349,6 @@ export function SiteHeader() {
               <NotificationCenter />
             </div>
           )}
-
-          {/* AI Coach Button (Compact Editorial Desktop Button) */}
-          <Link
-            href="/ai-coach"
-            className="hidden sm:flex items-center gap-1.5 bg-black text-white hover:bg-neutral-800 border border-black px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-colors shadow-2xs shrink-0"
-          >
-            <Sparkles size={13} className="text-[#ffc700]" />
-            <span>AI Coach</span>
-          </Link>
 
           {/* Auth State / Profile */}
           {user ? (
@@ -364,12 +376,22 @@ export function SiteHeader() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute right-0 top-full mt-1.5 w-44 border border-[#c8c8d0] bg-white p-1 shadow-md z-50 rounded-none font-mono text-xs"
+                    className="absolute right-0 top-full mt-1.5 w-48 border border-[#c8c8d0] bg-white p-1 shadow-md z-50 rounded-none font-mono text-xs"
                   >
                     <div className="px-3 py-2 border-b border-[#c8c8d0]">
                       <p className="font-bold text-foreground truncate">{user.displayName || "Engineer"}</p>
                       <p className="text-[10px] text-muted truncate">{user.email}</p>
                     </div>
+
+                    <Link
+                      href="/profile"
+                      onClick={() => setProfileMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-foreground hover:bg-surface font-bold transition-colors text-left border-b border-[#c8c8d0]"
+                    >
+                      <User size={13} className="text-amber-600" />
+                      <span>View Profile &amp; Stats</span>
+                    </Link>
+
                     <button
                       onClick={() => {
                         logout();
@@ -442,6 +464,16 @@ export function SiteHeader() {
                   Reality Check
                 </Link>
 
+                {/* 2. My Profile */}
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center gap-2 p-3 border border-[#c8c8d0] bg-surface text-foreground font-extrabold text-center hover:bg-white transition-colors"
+                >
+                  <User size={14} className="text-amber-600" />
+                  <span>My Profile &amp; Stats</span>
+                </Link>
+
                 {/* 2. Practice Accordion */}
                 <div className="border border-[#c8c8d0] bg-surface">
                   <button
@@ -463,7 +495,7 @@ export function SiteHeader() {
                           }}
                           className="flex items-center gap-2 p-2 hover:bg-surface text-muted hover:text-foreground"
                         >
-                          <item.icon size={13} />
+                          {item.icon && <item.icon size={13} />}
                           <span>{item.label}</span>
                         </Link>
                       ))}
@@ -492,7 +524,7 @@ export function SiteHeader() {
                           }}
                           className="flex items-center gap-2 p-2 hover:bg-surface text-muted hover:text-foreground"
                         >
-                          <item.icon size={13} />
+                          {item.icon && <item.icon size={13} />}
                           <span>{item.label}</span>
                         </Link>
                       ))}
@@ -521,24 +553,12 @@ export function SiteHeader() {
                           }}
                           className="flex items-center gap-2 p-2 hover:bg-surface text-muted hover:text-foreground"
                         >
-                          <item.icon size={13} />
+                          {item.icon && <item.icon size={13} />}
                           <span>{item.label}</span>
                         </Link>
                       ))}
                     </div>
                   )}
-                </div>
-
-                {/* Mobile Bottom Actions */}
-                <div className="pt-3 space-y-2 border-t border-[#c8c8d0]">
-                  <Link
-                    href="/ai-coach"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-2 p-3 bg-black text-white border border-black font-extrabold"
-                  >
-                    <Sparkles size={14} className="text-[#ffc700]" />
-                    <span>AI Coach</span>
-                  </Link>
                 </div>
 
               </div>

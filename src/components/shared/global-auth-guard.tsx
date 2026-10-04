@@ -94,7 +94,7 @@ function getSectionTitle(path: string): string {
     case "/assessment":
       return "Reality Check Assessment";
     case "/referrals":
-      return "Referral Marketplace";
+      return "Referral Queue";
     case "/daily-challenge":
       return "Daily Coding Challenge";
     case "/study-groups":
@@ -103,8 +103,6 @@ function getSectionTitle(path: string): string {
       return "Memes & Stories";
     case "/leaderboard":
       return "Leaderboard & Rankings";
-    case "/ai-coach":
-      return "AI Career Coach";
     case "/dashboard":
       return "Career Dashboard";
     case "/score":

@@ -1,13 +1,13 @@
 export const PRIMARY_NAV_LINKS = [
   { href: "/assessment", label: "Reality Check" },
-  { href: "/ai-coach", label: "AI Coach" },
   { href: "/resume", label: "Resume Roast" },
   { href: "/daily-challenge", label: "Daily Grind" },
 ];
 
 export const MORE_NAV_LINKS = [
+  { href: "/roadmap", label: "Career Roadmap", desc: "No-fluff 90-day engineering placement roadmap" },
   { href: "/real-world-dsa", label: "Real-World DSA Lab", desc: "Learn DSA via real engineering scenarios" },
-  { href: "/referrals", label: "Referrals Market", desc: "Request off-campus job referrals" },
+  { href: "/referrals", label: "Referral Queue", desc: "Join the verified candidate referral queue" },
   { href: "/study-groups", label: "Study Groups", desc: "Peer learning & group prep" },
   { href: "/memes", label: "Memes & Stories", desc: "Engineering humor & stories" },
   { href: "/leaderboard", label: "Leaderboard", desc: "Rankings & student XP" },

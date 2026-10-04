@@ -111,7 +111,7 @@ export function DailyChallengeWidget() {
         ].map((step) => (
           <button
             key={step.id}
-            onClick={() => setActiveStep(step.id as any)}
+            onClick={() => setActiveStep(step.id as typeof activeStep)}
             className={`px-3.5 py-2 text-xs font-semibold rounded-[8px] transition-colors shrink-0 ${
               activeStep === step.id
                 ? "bg-foreground text-white"

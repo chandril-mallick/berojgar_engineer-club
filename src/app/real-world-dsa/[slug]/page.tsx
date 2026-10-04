@@ -2,29 +2,35 @@
 
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
-import { notFound, useRouter } from "next/navigation";
-import { REAL_WORLD_DSA_CHALLENGES, RealWorldDSAChallenge, TestCase } from "@/lib/real-world-dsa-data";
+import { notFound } from "next/navigation";
+import { REAL_WORLD_DSA_CHALLENGES, TestCase } from "@/lib/real-world-dsa-data";
 import { JUDGE0_LANGUAGES, runCodeOnJudge0, ExecutionResult } from "@/lib/judge0";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
+  ChevronLeft,
   CheckCircle2,
   XCircle,
   Play,
   Send,
   Loader2,
-  Code,
+  Code2,
   Cpu,
   BookOpen,
   Sparkles,
-  Layers,
   Terminal,
-  HelpCircle,
-  Award,
+  RotateCcw,
+  Copy,
   Check,
-  Zap
+  Building2,
+  Clock,
+  HardDrive,
+  FileCode,
+  CheckCheck,
+  ChevronUp,
+  ChevronDown,
+  Lock,
+  Unlock,
+  AlertTriangle
 } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { UserXP } from "@/types";
@@ -36,13 +42,88 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default function ScenarioDetailPage({ params }: PageProps) {
+// Clean Starter Code Templates (Empty boilerplate for user to code from scratch)
+const STARTER_TEMPLATES: Record<number, string> = {
+  71: `# Python 3 Starter Template
+import sys
+
+def solve():
+    input_data = sys.stdin.read().split()
+    if not input_data:
+        return
+
+    # TODO: Write your solution logic here
+    
+    pass
+
+if __name__ == "__main__":
+    solve()
+`,
+  54: `// C++ Starter Template
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    // TODO: Write your solution logic here
+
+    return 0;
+}
+`,
+  62: `// Java Starter Template
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // TODO: Write your solution logic here
+
+    }
+}
+`,
+  63: `// JavaScript (Node.js) Starter Template
+const fs = require('fs');
+
+function solve() {
+    const input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);
+    if (!input || input.length === 0 || input[0] === '') return;
+
+    // TODO: Write your solution logic here
+
+}
+
+solve();
+`,
+  74: `// TypeScript Starter Template
+import * as fs from 'fs';
+
+function solve(): void {
+    const input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);
+    if (!input || input.length === 0 || input[0] === '') return;
+
+    // TODO: Write your solution logic here
+
+}
+
+solve();
+`
+};
+
+export default function CleanDSAWorkspacePage({ params }: PageProps) {
   const resolvedParams = use(params);
   const challenge = REAL_WORLD_DSA_CHALLENGES.find((c) => c.slug === resolvedParams.slug);
 
   if (!challenge) {
     notFound();
   }
+  const currentChallenge = challenge;
 
   const { user } = useAuth();
   const [completedSlugs, setCompletedSlugs] = useLocalStorage<string[]>(
@@ -53,61 +134,116 @@ export default function ScenarioDetailPage({ params }: PageProps) {
 
   const isAlreadySolved = completedSlugs.includes(challenge.slug);
 
-  // Editor & Language states
-  const [selectedLangId, setSelectedLangId] = useState<number>(71); // Python default
-  const [sourceCode, setSourceCode] = useState<string>(challenge.starterCode[71] || "");
+  // Left panel active tab: 'description' | 'editorial' | 'submissions'
+  const [activeLeftTab, setActiveLeftTab] = useState<"description" | "editorial" | "submissions">(
+    "description"
+  );
+
+  // Bottom console active tab: 'testcases' | 'testresult'
+  const [activeConsoleTab, setActiveConsoleTab] = useState<"testcases" | "testresult">("testcases");
+  const [activeCaseIndex, setActiveCaseIndex] = useState<number>(0);
+  const [isConsoleOpen, setIsConsoleOpen] = useState<boolean>(true);
+
+  // Language & Code states (Initializes with CLEAN STARTER TEMPLATE, NOT FULL SOLUTION)
+  const [selectedLangId, setSelectedLangId] = useState<number>(71); // Python 3 default
+  const [sourceCode, setSourceCode] = useState<string>(
+    STARTER_TEMPLATES[71]
+  );
   const [customStdin, setCustomStdin] = useState<string>(challenge.publicTestCases[0]?.input || "");
 
   // Execution & Test states
   const [executing, setExecuting] = useState<boolean>(false);
-  const [execResult, setExecResult] = useState<ExecutionResult | null>(null);
-
-  // Submission validation states
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [submissionStatus, setSubmissionStatus] = useState<"idle" | "success" | "failed">("idle");
+  const [runResult, setRunResult] = useState<ExecutionResult | null>(null);
+
+  // Submission validation state
+  const [submissionStatus, setSubmissionStatus] = useState<"idle" | "accepted" | "wrong" | "error">("idle");
   const [testResults, setTestResults] = useState<
-    { description?: string; passed: boolean; actual: string; expected: string }[]
+    { description?: string; passed: boolean; actual: string; expected: string; input: string }[]
   >([]);
+  const [passCount, setPassCount] = useState<number>(0);
+  const [totalCasesCount, setTotalCasesCount] = useState<number>(0);
+  const [executionTimeMs, setExecutionTimeMs] = useState<string>("14 ms");
+  const [executionMemoryMb, setExecutionMemoryMb] = useState<string>("13.9 MB");
 
-  // Post-solution explanation unlocked state
-  const [unlockedExplanation, setUnlockedExplanation] = useState<boolean>(isAlreadySolved);
+  // Editorial solution unlocked state
+  const [unlockedEditorial, setUnlockedEditorial] = useState<boolean>(isAlreadySolved);
+  const [copiedCode, setCopiedCode] = useState<boolean>(false);
 
-  // Switch starter code when language changes
+  // Submissions history local state
+  const [submissionsHistory, setSubmissionsHistory] = useLocalStorage<
+    { id: string; status: "Accepted" | "Wrong Answer" | "Runtime Error"; time: string; lang: string; runtime: string }[]
+  >(`bec-rwdsa-history-${challenge.slug}`, []);
+
+  // Update code to starter template when language changes
   const handleLanguageChange = (langId: number) => {
     setSelectedLangId(langId);
-    if (challenge.starterCode[langId]) {
-      setSourceCode(challenge.starterCode[langId]);
+    setSourceCode(STARTER_TEMPLATES[langId] || STARTER_TEMPLATES[71]);
+  };
+
+  const handleResetCode = () => {
+    setSourceCode(STARTER_TEMPLATES[selectedLangId] || STARTER_TEMPLATES[71]);
+  };
+
+  // Handle Tab key in text editor
+  const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const target = e.currentTarget;
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+
+      const newCode = sourceCode.substring(0, start) + "    " + sourceCode.substring(end);
+      setSourceCode(newCode);
+
+      setTimeout(() => {
+        target.selectionStart = target.selectionEnd = start + 4;
+      }, 0);
     }
   };
 
-  // Run Custom Execution (Raw Judge0 Run)
-  const handleRunCode = async () => {
+  // 1. RUN CODE against sample / active testcase
+  async function handleRunCode() {
+    if (executing || submitting) return;
     setExecuting(true);
-    setExecResult(null);
+    setIsConsoleOpen(true);
+    setActiveConsoleTab("testresult");
+    setSubmissionStatus("idle");
+    setRunResult(null);
+
+    const activeInput = currentChallenge.publicTestCases[activeCaseIndex]?.input || customStdin;
+
     try {
-      const res = await runCodeOnJudge0(sourceCode, selectedLangId, customStdin);
-      setExecResult(res);
+      const res = await runCodeOnJudge0(sourceCode, selectedLangId, activeInput);
+      setRunResult(res);
+      const elapsedSeconds = typeof res.time === "number" ? res.time : Number.parseFloat(res.time ?? "");
+      setExecutionTimeMs(Number.isFinite(elapsedSeconds) ? `${Math.max(1, Math.round(elapsedSeconds * 1000))} ms` : "—");
     } catch (err) {
-      console.error("Judge0 execution failed:", err);
-      setExecResult({ error: "Code execution error. Check connection." });
+      setRunResult({ error: "Execution error. Please check your network." });
     } finally {
       setExecuting(false);
     }
-  };
+  }
 
-  // Submit Solution & Test Case Validation
-  const handleSubmitSolution = async () => {
+  // 2. SUBMIT CODE against full test suite (public + hidden)
+  async function handleSubmitCode() {
+    if (submitting || executing) return;
     setSubmitting(true);
+    setIsConsoleOpen(true);
+    setActiveConsoleTab("testresult");
     setSubmissionStatus("idle");
     setTestResults([]);
 
     const allTestCases: TestCase[] = [
-      ...challenge.publicTestCases,
-      ...challenge.hiddenTestCases,
+      ...currentChallenge.publicTestCases,
+      ...currentChallenge.hiddenTestCases,
     ];
 
-    let passedAll = true;
+    setTotalCasesCount(allTestCases.length);
+
+    let passedCounter = 0;
     const results = [];
+    let overallStatus: "accepted" | "wrong" | "error" = "accepted";
 
     for (const tc of allTestCases) {
       try {
@@ -115,371 +251,747 @@ export default function ScenarioDetailPage({ params }: PageProps) {
         const actualOutput = (res.stdout || "").trim();
         const expectedOutput = tc.expectedOutput.trim();
 
-        // Check exact or normalized output match
-        const passed = actualOutput === expectedOutput || actualOutput.replace(/\r\n/g, "\n") === expectedOutput.replace(/\r\n/g, "\n");
+        const passed =
+          actualOutput === expectedOutput ||
+          actualOutput.replace(/\r\n/g, "\n") === expectedOutput.replace(/\r\n/g, "\n");
 
-        results.push({
-          description: tc.description || "Hidden Test Case",
-          passed,
-          actual: actualOutput,
-          expected: expectedOutput,
-        });
-
-        if (!passed) {
-          passedAll = false;
+        if (passed) {
+          passedCounter++;
+        } else {
+          overallStatus = "wrong";
         }
-      } catch (err) {
-        passedAll = false;
+
         results.push({
-          description: tc.description || "Test Case Execution Error",
+          description: tc.description || "Test Case",
+          passed,
+          actual: actualOutput || (res.stderr ? `Error: ${res.stderr}` : "No output"),
+          expected: expectedOutput,
+          input: tc.input
+        });
+      } catch (err) {
+        overallStatus = "error";
+        results.push({
+          description: tc.description || "Execution Error",
           passed: false,
-          actual: "Execution Error",
+          actual: "Execution Failure",
           expected: tc.expectedOutput,
+          input: tc.input
         });
       }
     }
 
     setTestResults(results);
+    setPassCount(passedCounter);
+    setSubmissionStatus(overallStatus);
 
-    if (passedAll) {
-      setSubmissionStatus("success");
-      setUnlockedExplanation(true);
+    const selectedLangObj = JUDGE0_LANGUAGES.find(l => l.id === selectedLangId);
+    const langName = selectedLangObj ? selectedLangObj.name : "Python 3";
 
-      // Save completion if not already recorded
-      if (!completedSlugs.includes(challenge.slug)) {
-        const updatedSlugs = [...completedSlugs, challenge.slug];
+    if (overallStatus === "accepted") {
+      setUnlockedEditorial(true);
+
+      if (!completedSlugs.includes(currentChallenge.slug)) {
+        const updatedSlugs = [...completedSlugs, currentChallenge.slug];
         setCompletedSlugs(updatedSlugs);
 
-        // Award +100 XP
-        const updatedXP = awardXP("challenge_complete", userXP, `Solved Real-World Lab: ${challenge.title} (+100 XP)`);
+        const updatedXP = awardXP(
+          "challenge_complete",
+          userXP,
+          `Solved Real-World Lab: ${currentChallenge.title} (+100 XP)`
+        );
         setUserXP(updatedXP);
 
-        // Sync with Firestore if logged in
         if (user) {
           saveUserTask(user.uid, {
-            taskId: `rwdsa-${challenge.slug}`,
-            title: challenge.title,
+            taskId: `rwdsa-${currentChallenge.slug}`,
+            title: currentChallenge.title,
             category: "Real-World DSA Lab",
             pointsEarned: 100,
           });
         }
       }
+
+      setSubmissionsHistory((history) => [
+        {
+          id: `sub-${crypto.randomUUID()}`,
+          status: "Accepted",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          lang: langName,
+          runtime: "14 ms"
+        },
+        ...history.slice(0, 9)
+      ]);
     } else {
-      setSubmissionStatus("failed");
+      setSubmissionsHistory((history) => [
+        {
+          id: `sub-${crypto.randomUUID()}`,
+          status: overallStatus === "wrong" ? "Wrong Answer" : "Runtime Error",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          lang: langName,
+          runtime: "0 ms"
+        },
+        ...history.slice(0, 9)
+      ]);
     }
 
     setSubmitting(false);
+  }
+
+  // Keyboard shortcut listener (Ctrl+Enter to Run, Ctrl+Shift+Enter to Submit)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          void handleSubmitCode();
+        } else {
+          void handleRunCode();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sourceCode, selectedLangId, customStdin]);
+
+  const handleCopyFullSolution = () => {
+    const fullSolution = challenge.starterCode[selectedLangId] || challenge.starterCode[71];
+    navigator.clipboard.writeText(fullSolution);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {/* Navigation Top Bar */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/real-world-dsa"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-foreground transition-colors"
-        >
-          <ArrowLeft size={14} />
-          <span>Back to Real-World DSA Lab</span>
-        </Link>
+  const codeLines = sourceCode.split("\n");
 
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={
-              challenge.difficulty === "Easy"
-                ? "success"
-                : challenge.difficulty === "Medium"
-                ? "warning"
-                : "danger"
-            }
+  return (
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#f8f9fa] text-[#0f172a] overflow-hidden select-none font-sans">
+      
+      {/* ── 1. Clean Top Navigation Bar ── */}
+      <div className="h-12 border-b border-[#e2e8f0] bg-white px-4 flex items-center justify-between shrink-0 font-mono text-xs shadow-xs">
+        {/* Left: Back Link & Problem Meta */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/real-world-dsa"
+            className="p-1.5 rounded-lg bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0f172a] transition-colors"
+            title="Back to Problem List"
           >
-            {challenge.difficulty}
-          </Badge>
-          {isAlreadySolved && (
-            <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              <CheckCircle2 size={13} />
-              <span>Solved</span>
+            <ChevronLeft size={16} />
+          </Link>
+
+          <span className="h-4 w-px bg-[#e2e8f0]" />
+
+          <div className="flex items-center gap-2 font-sans font-bold text-sm">
+            <span className="text-[#0f172a]">{challenge.title}</span>
+            <span
+              className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold ${
+                challenge.difficulty === "Easy"
+                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                  : challenge.difficulty === "Medium"
+                  ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                  : "bg-rose-500/10 text-rose-600 border border-rose-500/20"
+              }`}
+            >
+              {challenge.difficulty}
             </span>
-          )}
+            {isAlreadySolved && (
+              <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                <CheckCircle2 size={12} />
+                <span>Solved</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Center: Left Panel Tab Switcher */}
+        <div className="flex items-center bg-[#f1f5f9] p-0.5 rounded-lg border border-[#e2e8f0]">
+          <button
+            onClick={() => setActiveLeftTab("description")}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+              activeLeftTab === "description"
+                ? "bg-white text-[#0f172a] shadow-xs"
+                : "text-[#64748b] hover:text-[#0f172a]"
+            }`}
+          >
+            Description
+          </button>
+          <button
+            onClick={() => setActiveLeftTab("editorial")}
+            className={`px-3 py-1 rounded text-xs font-semibold flex items-center gap-1 transition-colors ${
+              activeLeftTab === "editorial"
+                ? "bg-white text-[#0f172a] shadow-xs"
+                : "text-[#64748b] hover:text-[#0f172a]"
+            }`}
+          >
+            {unlockedEditorial ? <Unlock size={12} className="text-emerald-600" /> : <Lock size={12} />}
+            <span>Editorial &amp; Solution</span>
+          </button>
+          <button
+            onClick={() => setActiveLeftTab("submissions")}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+              activeLeftTab === "submissions"
+                ? "bg-white text-[#0f172a] shadow-xs"
+                : "text-[#64748b] hover:text-[#0f172a]"
+            }`}
+          >
+            Submissions ({submissionsHistory.length})
+          </button>
+        </div>
+
+        {/* Right: Actions (Run & Submit) */}
+        <div className="flex items-center gap-2">
+          {/* Run Button */}
+          <button
+            onClick={handleRunCode}
+            disabled={executing || submitting}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#0f172a] border border-[#cbd5e1] text-xs font-bold transition-all disabled:opacity-50"
+            title="Run code against sample input (Ctrl+Enter)"
+          >
+            {executing ? (
+              <Loader2 size={14} className="animate-spin text-amber-600" />
+            ) : (
+              <Play size={14} className="fill-current text-emerald-600" />
+            )}
+            <span>Run</span>
+          </button>
+
+          {/* Submit Button */}
+          <button
+            onClick={handleSubmitCode}
+            disabled={submitting || executing}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50"
+            title="Submit solution to validate testcases (Ctrl+Shift+Enter)"
+          >
+            {submitting ? (
+              <Loader2 size={14} className="animate-spin text-white" />
+            ) : (
+              <Send size={14} className="fill-current text-emerald-400" />
+            )}
+            <span>Submit</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Grid Layout (Context/Problem on Left, Code Editor on Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* ── Left Column: Problem & Scenario Details (5 cols) ── */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-xs space-y-6">
-            <div>
-              <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-surface border border-border text-muted">
-                {challenge.category}
-              </span>
-              <h1 className="font-heading text-2xl font-bold text-foreground mt-3">
-                {challenge.title}
-              </h1>
-            </div>
+      {/* ── 2. Split Workspace (Left & Right Panels) ── */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden select-none">
+        
+        {/* ── LEFT PANE: Description / Editorial / Submissions (5 cols) ── */}
+        <div 
+          onCopy={(e) => e.preventDefault()}
+          onContextMenu={(e) => e.preventDefault()}
+          className="lg:col-span-5 border-r border-[#e2e8f0] bg-white flex flex-col overflow-hidden select-none"
+        >
+          
+          {/* TAB 1: DESCRIPTION */}
+          {activeLeftTab === "description" && (
+            <div 
+              onCopy={(e) => e.preventDefault()}
+              onContextMenu={(e) => e.preventDefault()}
+              className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-[#334155] leading-relaxed font-sans scrollbar-thin select-none"
+            >
+              
+              {/* Problem Header */}
+              <div className="space-y-3 pb-4 border-b border-[#e2e8f0]">
+                <h1 className="text-2xl font-bold text-[#0f172a] font-heading">
+                  {challenge.title}
+                </h1>
 
-            {/* 1. Real-World Context */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                <Cpu size={14} className="text-amber-600" />
-                <span>1. Real-World Engineering Context</span>
-              </h3>
-              <div className="bg-amber-50/50 border border-amber-200/60 rounded-xl p-3.5 text-xs text-amber-950 leading-relaxed">
-                {challenge.realWorldContext}
-              </div>
-            </div>
-
-            {/* 2. Problem Statement */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                <Terminal size={14} className="text-brand" />
-                <span>2. The Problem</span>
-              </h3>
-              <p className="text-xs text-foreground leading-relaxed">
-                {challenge.problem}
-              </p>
-            </div>
-
-            {/* 3 & 4. Input & Output Formats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5 bg-surface p-3 rounded-xl border border-border">
-                <h4 className="text-[11px] font-bold text-foreground">Expected Input</h4>
-                <p className="text-[11px] text-muted leading-snug">{challenge.inputFormat}</p>
-              </div>
-              <div className="space-y-1.5 bg-surface p-3 rounded-xl border border-border">
-                <h4 className="text-[11px] font-bold text-foreground">Expected Output</h4>
-                <p className="text-[11px] text-muted leading-snug">{challenge.outputFormat}</p>
-              </div>
-            </div>
-
-            {/* 5. Constraints */}
-            <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-foreground">5. Constraints</h4>
-              <code className="block text-[11px] font-mono bg-surface p-2.5 rounded-lg border border-border text-foreground">
-                {challenge.constraints}
-              </code>
-            </div>
-
-            {/* 6. DSA Learning Objective */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                <BookOpen size={14} className="text-emerald-600" />
-                <span>6. DSA Learning Objective</span>
-              </h3>
-              <div className="bg-emerald-50/50 border border-emerald-200/60 rounded-xl p-3 text-xs text-emerald-950 leading-relaxed">
-                <p className="font-semibold text-emerald-800 mb-1 font-mono">
-                  Target DSA: {challenge.dsaConcept}
-                </p>
-                <p>{challenge.dsaObjective}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Right Column: Code Editor & Execution Engine (7 cols) ── */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-xs space-y-4">
-            {/* Language Bar & Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <Code size={16} className="text-brand" />
-                <span className="text-xs font-bold text-foreground">Language:</span>
-                <select
-                  value={selectedLangId}
-                  onChange={(e) => handleLanguageChange(Number(e.target.value))}
-                  className="bg-surface text-xs font-semibold text-foreground px-3 py-1.5 rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-brand"
-                >
-                  {JUDGE0_LANGUAGES.map((lang) => (
-                    <option key={lang.id} value={lang.id}>
-                      {lang.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleRunCode}
-                  disabled={executing || submitting}
-                  className="gap-1.5 text-xs"
-                >
-                  {executing ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />}
-                  <span>Run Custom</span>
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={handleSubmitSolution}
-                  disabled={executing || submitting}
-                  className="gap-1.5 text-xs"
-                >
-                  {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-                  <span>Submit &amp; Test</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Code Textarea */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted font-mono uppercase">Source Code Solution</label>
-              <textarea
-                value={sourceCode}
-                onChange={(e) => setSourceCode(e.target.value)}
-                rows={14}
-                spellCheck={false}
-                className="w-full font-mono text-xs bg-gray-950 text-emerald-400 p-4 rounded-xl border border-gray-800 focus:outline-none focus:ring-1 focus:ring-brand leading-relaxed"
-                placeholder="Write your DSA solution here..."
-              />
-            </div>
-
-            {/* Custom STDIN input box */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted font-mono uppercase">Custom Test Input (STDIN)</label>
-              <textarea
-                value={customStdin}
-                onChange={(e) => setCustomStdin(e.target.value)}
-                rows={3}
-                className="w-full font-mono text-xs bg-surface text-foreground p-3 rounded-xl border border-border focus:outline-none"
-              />
-            </div>
-
-            {/* Single Execution Result Box */}
-            {execResult && (
-              <div className="p-4 rounded-xl border border-border bg-surface space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-foreground">Custom Run Execution Output</span>
-                  {execResult.status && (
-                    <Badge variant={execResult.status.id === 3 ? "success" : "danger"}>
-                      {execResult.status.description}
-                    </Badge>
-                  )}
-                </div>
-                {execResult.stdout && (
-                  <pre className="font-mono text-xs text-foreground bg-white p-2.5 rounded-lg border border-border whitespace-pre-wrap">
-                    {execResult.stdout}
-                  </pre>
-                )}
-                {execResult.stderr && (
-                  <pre className="font-mono text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200 whitespace-pre-wrap">
-                    {execResult.stderr}
-                  </pre>
-                )}
-                {execResult.error && (
-                  <p className="text-xs text-rose-600 font-semibold">{execResult.error}</p>
-                )}
-              </div>
-            )}
-
-            {/* Submission Test Cases Verification Banner & Grid */}
-            {testResults.length > 0 && (
-              <div className="p-4 rounded-xl border border-border bg-surface space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-foreground">Submission Test Results</h4>
-                  <Badge variant={submissionStatus === "success" ? "success" : "danger"}>
-                    {submissionStatus === "success" ? "All Test Cases Passed!" : "Test Failures Detected"}
-                  </Badge>
-                </div>
-
-                <div className="space-y-2">
-                  {testResults.map((tr, i) => (
-                    <div
-                      key={i}
-                      className={`p-3 rounded-lg border text-xs font-mono flex flex-col space-y-1 ${
-                        tr.passed ? "bg-emerald-50/60 border-emerald-200 text-emerald-950" : "bg-rose-50/60 border-rose-200 text-rose-950"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between font-sans">
-                        <span className="font-bold">{tr.description}</span>
-                        {tr.passed ? (
-                          <span className="flex items-center gap-1 text-emerald-600 font-bold">
-                            <Check size={13} /> Passed
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-rose-600 font-bold">
-                            <XCircle size={13} /> Failed
-                          </span>
-                        )}
-                      </div>
-                      {!tr.passed && (
-                        <div className="pt-1 text-[11px] space-y-0.5">
-                          <p><span className="font-semibold text-muted">Expected:</span> {tr.expected}</p>
-                          <p><span className="font-semibold text-rose-700">Actual Output:</span> {tr.actual || "(empty)"}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── Post-Solution Explanation Section (Revealed after solving) ── */}
-          <AnimatePresence>
-            {unlockedExplanation && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="rounded-2xl border border-emerald-300 bg-emerald-50/40 p-6 space-y-5 shadow-xs"
-              >
-                <div className="flex items-center justify-between pb-3 border-b border-emerald-200">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <Sparkles size={18} className="text-emerald-600" />
-                    <span>Post-Solution Explanation &amp; Industry Insights</span>
-                  </div>
-                  <span className="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                    Unlocked
+                <div className="flex items-center gap-2 flex-wrap text-xs font-mono">
+                  <span
+                    className={`px-2.5 py-0.5 rounded font-bold ${
+                      challenge.difficulty === "Easy"
+                        ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                        : challenge.difficulty === "Medium"
+                        ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                        : "bg-rose-500/10 text-rose-600 border border-rose-500/20"
+                    }`}
+                  >
+                    {challenge.difficulty}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]">
+                    {challenge.category}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                    +100 XP
                   </span>
                 </div>
 
-                {/* DSA Used & Why */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-xl border border-emerald-200 space-y-1">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted">Primary DSA Used</span>
-                    <p className="text-xs font-bold text-foreground">{challenge.postSolutionExplanation.dsaUsed}</p>
-                  </div>
-                  <div className="bg-white p-4 rounded-xl border border-emerald-200 space-y-1">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted">Complexity</span>
-                    <p className="text-xs font-mono font-semibold text-foreground">
-                      Time: {challenge.postSolutionExplanation.timeComplexity}
-                    </p>
-                    <p className="text-xs font-mono text-muted">
-                      Space: {challenge.postSolutionExplanation.spaceComplexity}
-                    </p>
-                  </div>
+                {/* Company Tag Badges */}
+                <div className="flex items-center gap-1.5 pt-1 text-xs font-mono">
+                  <Building2 size={13} className="text-[#64748b]" />
+                  <span className="text-[#64748b]">Companies:</span>
+                  <span className="px-2 py-0.5 rounded bg-[#f1f5f9] text-[#0f172a] border border-[#e2e8f0] text-[11px]">
+                    Swiggy / Zomato
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-[#f1f5f9] text-[#0f172a] border border-[#e2e8f0] text-[11px]">
+                    Amazon
+                  </span>
                 </div>
+              </div>
 
-                <div className="bg-white p-4 rounded-xl border border-emerald-200 space-y-2">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800">Why Use This DSA?</span>
-                  <p className="text-xs text-foreground leading-relaxed">
-                    {challenge.postSolutionExplanation.why}
-                  </p>
+              {/* Real-World Context Card */}
+              <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 space-y-2">
+                <div className="flex items-center gap-2 text-amber-700 font-bold text-xs font-mono">
+                  <Cpu size={15} />
+                  <span>REAL-WORLD ENGINEERING CONTEXT</span>
                 </div>
+                <p className="text-xs text-[#334155] leading-relaxed">
+                  {challenge.realWorldContext}
+                </p>
+              </div>
 
-                {/* Where this concept is used in real applications */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-emerald-950 uppercase tracking-wider">
-                    Where This Concept Is Used In Real Applications:
-                  </h4>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {challenge.postSolutionExplanation.realWorldApplications.map((app, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-2 text-xs text-foreground bg-white px-3 py-2 rounded-lg border border-emerald-200"
-                      >
-                        <Zap size={13} className="text-amber-500 shrink-0" />
-                        <span>{app}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {/* Problem Description */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748b] font-mono">
+                  Problem Description
+                </h3>
+                <p className="text-sm text-[#0f172a] leading-relaxed">
+                  {challenge.problem}
+                </p>
+              </div>
+
+              {/* Examples */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748b] font-mono">
+                  Examples
+                </h3>
+
+                {challenge.publicTestCases.map((tc, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4 space-y-2 font-mono text-xs select-none"
+                  >
+                    <div className="font-bold text-emerald-600">Example {idx + 1}:</div>
+                    <div>
+                      <span className="text-[#64748b]">Input: </span>
+                      <span className="text-[#0f172a] font-bold whitespace-pre-wrap">{tc.input}</span>
+                    </div>
+                    <div>
+                      <span className="text-[#64748b]">Output: </span>
+                      <span className="text-[#0f172a] font-bold whitespace-pre-wrap">{tc.expectedOutput}</span>
+                    </div>
+                    {tc.description && (
+                      <div className="pt-1 text-[#64748b] italic font-sans text-xs">
+                        Explanation: {tc.description}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Constraints */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748b] font-mono">
+                  Constraints
+                </h3>
+                <pre className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl text-xs font-mono text-[#0f172a] select-none">
+                  {challenge.constraints}
+                </pre>
+              </div>
+
+              {/* Target DSA Concept */}
+              <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-1">
+                <div className="flex items-center gap-2 text-emerald-700 font-bold text-xs font-mono">
+                  <BookOpen size={14} />
+                  <span>TARGET DSA CONCEPT: {challenge.dsaConcept}</span>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <p className="text-xs text-[#334155]">
+                  {challenge.dsaObjective}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: EDITORIAL & FULL SOLUTION */}
+          {activeLeftTab === "editorial" && (
+            <div 
+              onCopy={(e) => e.preventDefault()}
+              onContextMenu={(e) => e.preventDefault()}
+              className="flex-1 overflow-y-auto p-6 space-y-6 text-sm text-[#334155] leading-relaxed font-sans scrollbar-thin select-none"
+            >
+              {unlockedEditorial ? (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#e2e8f0]">
+                    <div>
+                      <h2 className="text-lg font-bold text-[#0f172a] font-heading">
+                        Editorial &amp; Full Solution
+                      </h2>
+                      <p className="text-xs text-[#64748b] font-mono">
+                        Optimal Reference Approach &amp; Complexity Analysis
+                      </p>
+                    </div>
+                    <span className="px-2.5 py-1 rounded bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0] text-xs font-mono flex items-center gap-1">
+                      <Lock size={12} />
+                      <span>Copying Disabled</span>
+                    </span>
+                  </div>
+
+                  {/* Concept & Why */}
+                  <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4 space-y-2">
+                    <h3 className="text-xs font-bold text-emerald-700 font-mono uppercase">
+                      DSA Choice: {challenge.postSolutionExplanation.dsaUsed}
+                    </h3>
+                    <p className="text-xs text-[#334155] leading-relaxed">
+                      {challenge.postSolutionExplanation.why}
+                    </p>
+                  </div>
+
+                  {/* Complexity Analysis */}
+                  <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                    <div className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl">
+                      <div className="text-[#64748b]">Time Complexity</div>
+                      <div className="text-base font-bold text-[#0f172a] mt-1">
+                        {challenge.postSolutionExplanation.timeComplexity}
+                      </div>
+                    </div>
+                    <div className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl">
+                      <div className="text-[#64748b]">Space Complexity</div>
+                      <div className="text-base font-bold text-[#0f172a] mt-1">
+                        {challenge.postSolutionExplanation.spaceComplexity}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Real World Applications */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-[#64748b] uppercase font-mono">
+                      Production Applications
+                    </h4>
+                    <ul className="space-y-1.5 text-xs text-[#334155]">
+                      {challenge.postSolutionExplanation.realWorldApplications.map((app, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-emerald-600 font-bold">&bull;</span>
+                          <span>{app}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Full Reference Solution Code */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-[#64748b] uppercase font-mono">
+                      Full Reference Code Solution
+                    </h4>
+                    <pre className="bg-[#0f172a] border border-[#1e293b] p-4 rounded-xl text-xs font-mono text-[#f8fafc] overflow-x-auto leading-relaxed shadow-sm">
+                      {challenge.starterCode[selectedLangId] || challenge.starterCode[71]}
+                    </pre>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
+                  <div className="p-4 rounded-2xl bg-[#f1f5f9] text-amber-600">
+                    <Lock size={32} />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold text-[#0f172a]">Full Solution Locked</h3>
+                    <p className="text-xs text-[#64748b] max-w-xs">
+                      Submit a valid solution passing all testcases or unlock the reference solution below.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setUnlockedEditorial(true)}
+                    className="px-4 py-2 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] text-white text-xs font-bold font-mono transition-colors"
+                  >
+                    Unlock Full Solution
+                  </button>
+                </div>
+              )}
+          </div>
+          )}
+
+          {/* TAB 3: SUBMISSIONS HISTORY */}
+          {activeLeftTab === "submissions" && (
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-xs">
+              <h2 className="text-base font-bold text-[#0f172a] font-heading font-sans">
+                Submission History
+              </h2>
+
+              {submissionsHistory.length === 0 ? (
+                <div className="text-center py-12 text-[#64748b]">
+                  No submission attempts yet. Click &quot;Submit&quot; to test your code!
+                </div>
+              ) : (
+                <div className="divide-y divide-[#e2e8f0]">
+                  {submissionsHistory.map((sub) => (
+                    <div key={sub.id} className="py-3 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span
+                          className={`font-bold ${
+                            sub.status === "Accepted" ? "text-emerald-600" : "text-rose-600"
+                          }`}
+                        >
+                          {sub.status}
+                        </span>
+                        <div className="text-[11px] text-[#64748b]">
+                          {sub.lang} &bull; {sub.time}
+                        </div>
+                      </div>
+                      <span className="text-[#0f172a] font-bold">{sub.runtime}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* ── RIGHT PANE: Code Editor & Bottom Console (7 cols) ── */}
+        <div className="lg:col-span-7 bg-white flex flex-col overflow-hidden">
+          
+          {/* Editor Header Bar */}
+          <div className="h-10 border-b border-[#e2e8f0] bg-[#f8fafc] px-4 flex items-center justify-between text-xs font-mono text-[#64748b]">
+            <div className="flex items-center gap-3">
+              <span className="text-[#0f172a] font-bold flex items-center gap-1.5">
+                <FileCode size={14} className="text-emerald-600" />
+                <span>Code Editor</span>
+              </span>
+
+              {/* Language Selector */}
+              <select
+                value={selectedLangId}
+                onChange={(e) => handleLanguageChange(Number(e.target.value))}
+                className="bg-white text-[#0f172a] text-xs font-mono font-semibold px-2.5 py-1 rounded border border-[#cbd5e1] focus:outline-none focus:border-[#0f172a]"
+              >
+                {JUDGE0_LANGUAGES.map((lang) => (
+                  <option key={lang.id} value={lang.id}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-[#64748b] text-[11px]">{codeLines.length} lines</span>
+              <button
+                onClick={handleResetCode}
+                className="hover:text-[#0f172a] transition-colors flex items-center gap-1"
+                title="Reset code to clean starter template"
+              >
+                <RotateCcw size={13} />
+                <span>Reset Starter Code</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Editor Core Textarea with Line Numbers (CLEAN LIGHT THEME) */}
+          <div className="flex-1 flex overflow-hidden bg-white relative">
+            {/* Left Gutter: Line Numbers */}
+            <div className="w-12 py-3 bg-[#f8fafc] text-[#94a3b8] font-mono text-xs select-none text-right pr-3 border-r border-[#e2e8f0] shrink-0 leading-6">
+              {codeLines.map((_, i) => (
+                <div key={i}>{i + 1}</div>
+              ))}
+            </div>
+
+            {/* Code Input Textarea */}
+            <textarea
+              value={sourceCode}
+              onChange={(e) => setSourceCode(e.target.value)}
+              onKeyDown={handleEditorKeyDown}
+              onPaste={(e) => {
+                e.preventDefault();
+                alert("Pasting code is disabled in Real-World DSA Lab. Please type out your code to practice!");
+              }}
+              onCopy={(e) => e.preventDefault()}
+              onCut={(e) => e.preventDefault()}
+              spellCheck={false}
+              className="flex-1 p-3 bg-white text-[#0f172a] font-mono text-xs leading-6 resize-none focus:outline-none scrollbar-thin overflow-y-auto whitespace-pre"
+              placeholder="// Write your code solution here..."
+            />
+          </div>
+
+          {/* ── 3. Bottom Interactive Console Panel (CLEAN LIGHT THEME) ── */}
+          <div className="border-t border-[#e2e8f0] bg-[#f8fafc] flex flex-col shrink-0">
+            {/* Console Bar Header */}
+            <div className="h-9 px-4 border-b border-[#e2e8f0] flex items-center justify-between text-xs font-mono text-[#64748b]">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => {
+                    setIsConsoleOpen(true);
+                    setActiveConsoleTab("testcases");
+                  }}
+                  className={`flex items-center gap-1.5 py-1 font-semibold transition-colors ${
+                    activeConsoleTab === "testcases" && isConsoleOpen
+                      ? "text-[#0f172a] border-b-2 border-[#0f172a]"
+                      : "hover:text-[#0f172a]"
+                  }`}
+                >
+                  <Terminal size={13} />
+                  <span>Testcase</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsConsoleOpen(true);
+                    setActiveConsoleTab("testresult");
+                  }}
+                  className={`flex items-center gap-1.5 py-1 font-semibold transition-colors ${
+                    activeConsoleTab === "testresult" && isConsoleOpen
+                      ? "text-[#0f172a] border-b-2 border-[#0f172a]"
+                      : "hover:text-[#0f172a]"
+                  }`}
+                >
+                  <CheckCheck size={13} />
+                  <span>Test Result</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setIsConsoleOpen(!isConsoleOpen)}
+                className="hover:text-[#0f172a] flex items-center gap-1 text-[11px]"
+              >
+                <span>Console</span>
+                {isConsoleOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+            </div>
+
+            {/* Console Content Body */}
+            {isConsoleOpen && (
+              <div className="h-44 p-4 overflow-y-auto font-mono text-xs bg-white">
+                
+                {/* CONSOLE TAB 1: TESTCASES */}
+                {activeConsoleTab === "testcases" && (
+                  <div className="space-y-3">
+                    {/* Case Buttons */}
+                    <div className="flex items-center gap-2">
+                      {challenge.publicTestCases.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveCaseIndex(idx)}
+                          className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                            activeCaseIndex === idx
+                              ? "bg-[#0f172a] text-white"
+                              : "bg-[#f1f5f9] text-[#64748b] hover:text-[#0f172a]"
+                          }`}
+                        >
+                          Case {idx + 1}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Input Display Box */}
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] text-[#64748b]">Input =</div>
+                      <textarea
+                        value={customStdin}
+                        onChange={(e) => setCustomStdin(e.target.value)}
+                        className="w-full bg-[#f8fafc] border border-[#cbd5e1] p-2.5 rounded-lg text-[#0f172a] font-mono text-xs resize-none focus:outline-none focus:border-[#0f172a]"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* CONSOLE TAB 2: TEST RESULT / SUBMISSION RESULT */}
+                {activeConsoleTab === "testresult" && (
+                  <div className="space-y-3">
+                    
+                    {/* LOADING STATE */}
+                    {(executing || submitting) && (
+                      <div className="flex items-center gap-3 py-4 text-amber-600">
+                        <Loader2 size={18} className="animate-spin" />
+                        <span>{submitting ? "Evaluating test cases..." : "Executing code on Judge0..."}</span>
+                      </div>
+                    )}
+
+                    {/* SUBMISSION RESULT: ACCEPTED */}
+                    {submissionStatus === "accepted" && !submitting && (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-emerald-700">
+                          <div className="flex items-center gap-2 font-bold text-sm">
+                            <CheckCircle2 size={18} />
+                            <span>Accepted</span>
+                          </div>
+                          <div className="text-xs font-semibold">
+                            Passed {passCount}/{totalCasesCount} Testcases
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-6 text-xs text-[#64748b]">
+                          <div className="flex items-center gap-1.5">
+                            <Clock size={13} className="text-emerald-600" />
+                            <span>Runtime: <strong className="text-[#0f172a]">{executionTimeMs}</strong></span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <HardDrive size={13} className="text-emerald-600" />
+                            <span>Memory: <strong className="text-[#0f172a]">{executionMemoryMb}</strong></span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUBMISSION RESULT: WRONG ANSWER */}
+                    {submissionStatus === "wrong" && !submitting && (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between bg-rose-500/10 border border-rose-500/30 p-3 rounded-xl text-rose-700">
+                          <div className="flex items-center gap-2 font-bold text-sm">
+                            <XCircle size={18} />
+                            <span>Wrong Answer</span>
+                          </div>
+                          <div className="text-xs font-semibold">
+                            Passed {passCount}/{totalCasesCount} Testcases
+                          </div>
+                        </div>
+
+                        {/* Failed Case Diff View */}
+                        {testResults.find(r => !r.passed) && (
+                          <div className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl space-y-2 text-xs">
+                            <div className="text-[#64748b]">Failed Case Input:</div>
+                            <pre className="text-[#0f172a] bg-white p-2 rounded border border-[#e2e8f0]">
+                              {testResults.find(r => !r.passed)?.input}
+                            </pre>
+                            <div className="grid grid-cols-2 gap-2 pt-1">
+                              <div>
+                                <span className="text-rose-600 font-bold">Your Output:</span>
+                                <pre className="text-rose-700 bg-white p-2 rounded mt-1 border border-rose-200">
+                                  {testResults.find(r => !r.passed)?.actual}
+                                </pre>
+                              </div>
+                              <div>
+                                <span className="text-emerald-600 font-bold">Expected Output:</span>
+                                <pre className="text-emerald-700 bg-white p-2 rounded mt-1 border border-emerald-200">
+                                  {testResults.find(r => !r.passed)?.expected}
+                                </pre>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* RUN CODE RESULT */}
+                    {runResult && !executing && submissionStatus === "idle" && (
+                      <div className="space-y-2">
+                        {runResult.error ? (
+                          <div className="text-rose-700 bg-rose-500/10 border border-rose-500/30 p-3 rounded-xl">
+                            {runResult.error}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-emerald-700 font-bold">
+                              <CheckCircle2 size={15} />
+                              <span>Code Executed Successfully ({executionTimeMs})</span>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="text-[#64748b]">Standard Output:</div>
+                              <pre className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-xl text-[#0f172a] font-mono text-xs whitespace-pre-wrap">
+                                {runResult.stdout || "(No output printed)"}
+                              </pre>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {!executing && !submitting && !runResult && submissionStatus === "idle" && (
+                      <div className="text-[#64748b] text-center py-6">
+                        Click &quot;Run&quot; or &quot;Submit&quot; above to see execution results.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );

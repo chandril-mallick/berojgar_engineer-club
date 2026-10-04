@@ -9,7 +9,8 @@ export function useLocalStorage<T>(key: string, fallback: T) {
     try {
       const saved = window.localStorage.getItem(key);
       if (saved) {
-        setValue(JSON.parse(saved) as T);
+        const parsed = JSON.parse(saved) as T;
+        queueMicrotask(() => setValue(parsed));
       }
     } catch {
       // ignore
@@ -32,4 +33,3 @@ export function useLocalStorage<T>(key: string, fallback: T) {
 
   return [value, updateValue] as const;
 }
-

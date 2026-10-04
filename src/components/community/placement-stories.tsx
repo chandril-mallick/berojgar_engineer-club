@@ -181,7 +181,7 @@ export function PlacementStories() {
               <form onSubmit={handleCreate} className="space-y-3">
                 <div>
                   <label className="text-[10px] font-semibold uppercase text-muted">Category</label>
-                  <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1">
+                  <select value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1">
                     <option value="Placement Experience">Placement Experience</option>
                     <option value="Interview Experience">Interview Experience</option>
                     <option value="Ghosted by HR">Ghosted by HR</option>

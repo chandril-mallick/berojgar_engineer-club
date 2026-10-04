@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lock, Mail, KeyRound, User as UserIcon, ShieldAlert, Sparkles, LogIn } from "lucide-react";
 
+function getAuthErrorDetails(error: unknown) {
+  if (typeof error !== "object" || error === null) return {};
+  const candidate = error as Record<string, unknown>;
+  return {
+    code: typeof candidate.code === "string" ? candidate.code : "",
+    message: typeof candidate.message === "string" ? candidate.message : "",
+  };
+}
+
 export function AuthModal() {
   const {
     isAuthModalOpen,
@@ -38,8 +47,9 @@ export function AuthModal() {
         if (!name.trim()) throw new Error("Please enter your display name.");
         await signUpWithEmail(email, password, name);
       }
-    } catch (err: any) {
-      const msg = err?.message || "Authentication failed. Check credentials and try again.";
+    } catch (caught: unknown) {
+      const { message } = getAuthErrorDetails(caught);
+      const msg = message || "Authentication failed. Check credentials and try again.";
       if (msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password")) {
         setError("Invalid email or password.");
       } else if (msg.includes("auth/email-already-in-use")) {
@@ -59,9 +69,9 @@ export function AuthModal() {
     setLoading(true);
     try {
       await signInWithGoogle();
-    } catch (err: any) {
-      console.error("Google login error:", err);
-      const code = err?.code || "";
+    } catch (caught: unknown) {
+      console.error("Google login error:", caught);
+      const { code, message } = getAuthErrorDetails(caught);
       if (code === "auth/popup-closed-by-user") {
         setError("Sign-in window was closed before completing.");
       } else if (code === "auth/unauthorized-domain") {
@@ -71,7 +81,7 @@ export function AuthModal() {
       } else if (code === "auth/account-exists-with-different-credential") {
         setError("An account already exists with this email using another sign-in method (e.g. GitHub or Email). Please sign in using your original method.");
       } else {
-        setError(err?.message?.replace("Firebase: ", "") || "Google Sign-In failed.");
+        setError((message ?? "").replace("Firebase: ", "") || "Google Sign-In failed.");
       }
     } finally {
       setLoading(false);
@@ -83,9 +93,9 @@ export function AuthModal() {
     setLoading(true);
     try {
       await signInWithGithub();
-    } catch (err: any) {
-      console.error("GitHub login error:", err);
-      const code = err?.code || "";
+    } catch (caught: unknown) {
+      console.error("GitHub login error:", caught);
+      const { code, message } = getAuthErrorDetails(caught);
       if (code === "auth/popup-closed-by-user") {
         setError("Sign-in window was closed before completing.");
       } else if (code === "auth/unauthorized-domain") {
@@ -95,7 +105,7 @@ export function AuthModal() {
       } else if (code === "auth/account-exists-with-different-credential") {
         setError("An account already exists with this email using another sign-in method (e.g. Google or Email). Please sign in using your original method.");
       } else {
-        setError(err?.message?.replace("Firebase: ", "") || "GitHub Sign-In failed.");
+        setError((message ?? "").replace("Firebase: ", "") || "GitHub Sign-In failed.");
       }
     } finally {
       setLoading(false);
@@ -107,7 +117,7 @@ export function AuthModal() {
     setLoading(true);
     try {
       await signInAsGuest();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Guest login failed. Please try again.");
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -34,8 +34,9 @@ export function BerojgariCertificate({
   const [activeCaptionIdx, setActiveCaptionIdx] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
+  const certificateInstanceId = useId().replace(/:/g, "");
 
-  const certId = `BEC-${score}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const certId = `BEC-${score}-${certificateInstanceId}`;
 
   const captionOptions = [
     {
@@ -74,7 +75,7 @@ export function BerojgariCertificate({
         quality: 0.98,
         cacheBust: true,
         backgroundColor: "#fffdf5",
-        filter: filter as any,
+        filter,
       });
       const link = document.createElement("a");
       link.download = `Certificate-of-Berojgari-${userName.replace(/\s+/g, "_")}.jpg`;

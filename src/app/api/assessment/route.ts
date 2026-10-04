@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limiter";
 import { AssessmentInput, ScoreResult } from "@/types";
+
+const assessmentSchema = z.object({
+  college: z.string().trim().min(1).max(120),
+  branch: z.string().trim().min(1).max(80),
+  year: z.string().trim().min(1).max(20),
+  cgpa: z.number().finite().min(0).max(10),
+  projects: z.number().int().min(0).max(10),
+  internships: z.number().int().min(0).max(10),
+  github: z.enum(["yes", "low", "no"]),
+  linkedin: z.enum(["yes", "no"]),
+  dsa: z.number().int().min(0).max(10),
+  communication: z.number().int().min(0).max(10),
+  targetCompany: z.string().trim().min(1).max(120),
+  topProject: z.string().trim().max(500).optional(),
+  keyAchievement: z.string().trim().max(500).optional(),
+  interviewConfidence: z.number().int().min(0).max(10).optional(),
+  targetRole: z.string().trim().max(120).optional(),
+});
 
 // ── Fallback: pure-TS scoring (mirrors Python engine.py exactly) ──────────
 function clamp(value: number, min = 0, max = 100) {
@@ -82,7 +101,7 @@ function calculateScoreFallback(payload: AssessmentInput): ScoreResult {
 export async function POST(req: Request) {
   // ── Rate limit: 30 assessments per IP per 5 minutes ─────────────────────
   const ip = getClientIP(req);
-  const rateLimit = checkRateLimit(`assessment:${ip}`, { limit: 30, windowMs: 5 * 60_000 });
+  const rateLimit = await checkRateLimit(`assessment:${ip}`, { limit: 30, windowMs: 5 * 60_000 });
   if (!rateLimit.success) {
     const retryAfterSec = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
     return NextResponse.json(
@@ -98,12 +117,18 @@ export async function POST(req: Request) {
     );
   }
 
-  let payload: AssessmentInput;
+  let body: unknown;
   try {
-    payload = await req.json();
+    body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
+
+  const parsedPayload = assessmentSchema.safeParse(body);
+  if (!parsedPayload.success) {
+    return NextResponse.json({ error: "Invalid assessment fields." }, { status: 400 });
+  }
+  const payload: AssessmentInput = parsedPayload.data;
 
   const backendUrl = process.env.FASTAPI_BACKEND_URL ?? "http://localhost:8000";
 
@@ -148,10 +173,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ...result, _source: "fastapi" });
     }
 
-    const errText = await res.text();
-    console.warn(`FastAPI assessment failed (${res.status}):`, errText);
-  } catch (err) {
-    console.warn("FastAPI backend unreachable, falling back to TS scoring:", err);
+  } catch {
+    // FastAPI backend offline - fallback seamlessly to local TypeScript engine
   }
 
   // ── Attempt 2: TypeScript fallback scoring ───────────────────────────────

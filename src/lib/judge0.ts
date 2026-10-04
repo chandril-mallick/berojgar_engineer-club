@@ -157,7 +157,7 @@ export async function runCodeOnJudge0(
 
     const data = await res.json();
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Judge0 execution call failed:", error);
     return {
       error: "Failed to connect to Judge0 execution engine.",

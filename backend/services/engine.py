@@ -1,3 +1,5 @@
+import math
+
 from backend.models.schemas import (
     AssessmentPayload,
     AssessmentResponse,
@@ -7,7 +9,8 @@ from backend.models.schemas import (
 
 
 def _clamp(value: float, minimum: int = 0, maximum: int = 100) -> int:
-    return max(minimum, min(int(round(value)), maximum))
+    # Match JavaScript's Math.round used by the resilient Next.js scorer.
+    return max(minimum, min(math.floor(value + 0.5), maximum))
 
 
 def score_assessment(payload: AssessmentPayload) -> AssessmentResponse:
@@ -19,6 +22,7 @@ def score_assessment(payload: AssessmentPayload) -> AssessmentResponse:
         + payload.communication * 5
         + (6 if payload.github == "yes" else 0)
         + (5 if payload.linkedin == "yes" else 0)
+        - (8 if payload.year == "1" else 0)
     )
     score = _clamp(raw_score / 4.2)
     risk_level = "HIGH" if score < 45 else "MEDIUM" if score < 70 else "LOW"

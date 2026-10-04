@@ -28,11 +28,11 @@ const COMMUNITY_HUBS = [
     color: "bg-amber-50 text-amber-700 border-amber-200",
   },
   {
-    title: "Referral Marketplace",
+    title: "Referral Queue",
     href: "/referrals",
     icon: Handshake,
-    badge: "Verified Referrers",
-    description: "Request official employee referrals from seniors at Google, Microsoft, Amazon, and Atlassian.",
+    badge: "Candidate Matching",
+    description: "Join the verified candidate referral queue to match with real engineers as our referrer network grows.",
     color: "bg-purple-50 text-purple-700 border-purple-200",
   },
   {
@@ -75,14 +75,6 @@ const COMMUNITY_HUBS = [
     description: "Lead your college engineering community. Earn XP, leadership certificates, and cash stipends.",
     color: "bg-orange-50 text-orange-700 border-orange-200",
   },
-  {
-    title: "AI Career Coach",
-    href: "/ai-coach",
-    icon: Bot,
-    badge: "24/7 AI Mentor",
-    description: "Personalized AI mentor answering 'What should I learn today?' and 'Why am I getting rejected?'",
-    color: "bg-violet-50 text-violet-700 border-violet-200",
-  },
 ];
 
 export default function CommunityPage() {
@@ -98,7 +90,7 @@ export default function CommunityPage() {
             India&apos;s Largest Engineering Community & Career Hub
           </h1>
           <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
-            Stop studying alone. Connect with 12,000+ engineers across India to roast resumes, share placement tips, compete on college leaderboards, request referrals, and crack dream jobs together.
+            Stop studying alone. Connect with 12,000+ engineers across India to roast resumes, share placement tips, compete on college leaderboards, join referral queues, and crack dream jobs together.
           </p>
         </motion.div>
       </div>

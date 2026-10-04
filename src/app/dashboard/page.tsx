@@ -48,7 +48,7 @@ export default function DashboardPage() {
     const today = new Date().toISOString().slice(0, 10);
     const doneKey = `bec-challenge-${today}`;
     if (window.localStorage.getItem(doneKey) === todayChallenge.id) {
-      setChallengeDown(true);
+      queueMicrotask(() => setChallengeDown(true));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

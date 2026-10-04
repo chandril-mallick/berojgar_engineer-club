@@ -10,13 +10,30 @@ import { Sparkles, PartyPopper, CheckCircle2, Share2, Plus, X } from "lucide-rea
 import { useAuth } from "@/hooks/use-auth";
 import { getCommunityOffers, saveCommunityOffer, getUserFirestoreProfile } from "@/lib/firestore-service";
 
+interface OfferProfile {
+  college?: string;
+  branch?: string;
+  year?: string;
+}
+
+interface PersistedOffer {
+  id?: string;
+  studentName?: string;
+  college?: string;
+  branch?: string;
+  company?: string;
+  role?: string;
+  packageLpa?: number;
+  storySnippet?: string;
+}
+
 export function OfferWall() {
   const { user, requireAuth } = useAuth();
   const [offers, setOffers] = useState<OfferWallPost[]>(OFFER_WALL_DATA);
   const [congratsMap, setCongratsMap] = useState<Record<string, boolean>>({});
   const [showModal, setShowModal] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<OfferProfile | null>(null);
 
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
@@ -25,14 +42,14 @@ export function OfferWall() {
 
   useEffect(() => {
     if (!user) {
-      setProfile(null);
+      queueMicrotask(() => setProfile(null));
       return;
     }
     const uid = user.uid;
     async function fetchProfile() {
       const res = await getUserFirestoreProfile(uid);
       if (res.success && res.data) {
-        setProfile(res.data);
+        setProfile(res.data as OfferProfile);
       }
     }
     fetchProfile();
@@ -42,7 +59,7 @@ export function OfferWall() {
     async function loadOffers() {
       const res = await getCommunityOffers();
       if (res.success && res.data.length > 0) {
-        const userOffers: OfferWallPost[] = res.data.map((d: any, idx: number) => ({
+        const userOffers: OfferWallPost[] = (res.data as PersistedOffer[]).map((d, idx) => ({
           id: d.id || `user-offer-${idx}`,
           studentName: d.studentName || "Placed Engineer",
           college: d.college || "Engineering College",

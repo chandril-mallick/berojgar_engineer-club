@@ -1,9 +1,10 @@
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
 /**
- * Lightweight in-memory sliding-window rate limiter for Next.js API routes.
- * No external packages needed — suitable for serverless environments.
- *
- * For production at scale, replace the store with Upstash Redis:
- * https://upstash.com/docs/redis/sdks/ratelimit-ts/overview
+ * Rate limiting backed by Upstash Redis when configured. Local development
+ * deliberately falls back to an in-memory limiter so the app remains runnable
+ * without external credentials.
  */
 
 interface RateLimitEntry {
@@ -41,14 +42,57 @@ export interface RateLimitResult {
   resetAt: number;
 }
 
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
+
+const distributedLimiters = new Map<string, Ratelimit>();
+
+function getDistributedLimiter(options: RateLimitOptions): Ratelimit | null {
+  if (!redis) return null;
+
+  const cacheKey = `${options.limit}:${options.windowMs}`;
+  const existing = distributedLimiters.get(cacheKey);
+  if (existing) return existing;
+
+  const duration = `${Math.max(1, Math.ceil(options.windowMs / 60_000))} m` as `${number} m`;
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(options.limit, duration),
+    prefix: "bec:ratelimit",
+    ephemeralCache: new Map(),
+  });
+  distributedLimiters.set(cacheKey, limiter);
+  return limiter;
+}
+
 /**
  * Check and increment rate limit for an identifier (typically IP address).
  * Returns { success: false } when limit is exceeded.
  */
-export function checkRateLimit(
+export async function checkRateLimit(
   identifier: string,
   options: RateLimitOptions
-): RateLimitResult {
+): Promise<RateLimitResult> {
+  const distributedLimiter = getDistributedLimiter(options);
+  if (distributedLimiter) {
+    try {
+      const result = await distributedLimiter.limit(identifier);
+      return {
+        success: result.success,
+        remaining: result.remaining,
+        resetAt: result.reset,
+      };
+    } catch (error) {
+      // Keep the service available during a transient Redis outage. The local
+      // limiter is intentionally a degraded mode, not the production default.
+      console.warn("Distributed rate limiter unavailable; using local fallback.", error);
+    }
+  }
+
   const { limit, windowMs } = options;
   const now = Date.now();
 

@@ -13,6 +13,7 @@ import {
   updateDoc,
   increment,
 } from "firebase/firestore";
+import type { AssessmentInput } from "@/types";
 
 /**
  * Firestore User Data Persistence Helper Service
@@ -63,7 +64,7 @@ export async function saveUserAssessment(
     devScore: number;
     csFundamentalsScore: number;
     communicationScore: number;
-    answers?: Record<string, any>;
+    answers?: Partial<AssessmentInput>;
   }
 ) {
   try {
@@ -76,7 +77,7 @@ export async function saveUserAssessment(
 
     // Update main user document score and profile metadata
     const userRef = doc(db, "users", uid);
-    const profileUpdates: Record<string, any> = {
+    const profileUpdates: Record<string, unknown> = {
       berojgarScore: assessment.score,
       riskIndex: assessment.riskIndex,
       lastAssessmentAt: serverTimestamp(),
@@ -128,29 +129,6 @@ export async function saveDailyChallenge(
     return { success: true };
   } catch (error) {
     console.warn("Firestore saveDailyChallenge fallback:", error);
-    return { success: false, error };
-  }
-}
-
-// 4. Save AI Coach Chat Message
-export async function saveAIChatMessage(
-  uid: string,
-  chat: {
-    prompt: string;
-    reply: string;
-    mode: string;
-    model?: string;
-  }
-) {
-  try {
-    const aiChatsCol = collection(db, "users", uid, "ai_chats");
-    await addDoc(aiChatsCol, {
-      ...chat,
-      createdAt: serverTimestamp(),
-    });
-    return { success: true };
-  } catch (error) {
-    console.warn("Firestore saveAIChatMessage fallback:", error);
     return { success: false, error };
   }
 }
@@ -322,4 +300,3 @@ export async function getTopFirestoreUsers() {
     return { success: false, data: [] };
   }
 }
-

@@ -14,6 +14,20 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, googleProvider, githubProvider } from "@/lib/firebase";
 
+interface AuthErrorDetails {
+  code?: string;
+  message?: string;
+}
+
+function getAuthErrorDetails(error: unknown): AuthErrorDetails {
+  if (typeof error !== "object" || error === null) return {};
+  const candidate = error as Record<string, unknown>;
+  return {
+    code: typeof candidate.code === "string" ? candidate.code : undefined,
+    message: typeof candidate.message === "string" ? candidate.message : undefined,
+  };
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -102,7 +116,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
       closeAuthModal();
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = getAuthErrorDetails(caught);
       console.warn("Google sign in notice:", error?.code || error?.message);
       if (
         error?.code === "auth/popup-closed-by-user" ||
@@ -126,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal();
         return;
       }
-      throw error;
+      throw caught;
     }
   };
 
@@ -134,7 +149,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithPopup(auth, githubProvider);
       closeAuthModal();
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = getAuthErrorDetails(caught);
       console.warn("GitHub sign in notice:", error?.code || error?.message);
       if (
         error?.code === "auth/popup-closed-by-user" ||
@@ -158,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal();
         return;
       }
-      throw error;
+      throw caught;
     }
   };
 
@@ -166,7 +182,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       closeAuthModal();
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = getAuthErrorDetails(caught);
       console.error("Email sign in error:", error);
       if (error?.message?.includes("api-key-not-valid") || error?.code === "auth/invalid-api-key") {
         const mockUser = {
@@ -179,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal();
         return;
       }
-      throw error;
+      throw caught;
     }
   };
 
@@ -190,7 +207,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await updateProfile(res.user, { displayName: name });
       }
       closeAuthModal();
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = getAuthErrorDetails(caught);
       console.error("Email sign up error:", error);
       if (error?.message?.includes("api-key-not-valid") || error?.code === "auth/invalid-api-key") {
         const mockUser = {
@@ -203,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal();
         return;
       }
-      throw error;
+      throw caught;
     }
   };
 
@@ -211,7 +229,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInAnonymously(auth);
       closeAuthModal();
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = getAuthErrorDetails(caught);
       console.error("Guest sign in error:", error);
       if (error?.message?.includes("api-key-not-valid") || error?.code === "auth/invalid-api-key") {
         const mockUser = {
@@ -224,7 +243,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal();
         return;
       }
-      throw error;
+      throw caught;
     }
   };
 

@@ -26,10 +26,12 @@ export default function ResumePage() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState(UPLOAD_MICROCOPY[0]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [userXP, setUserXP] = useLocalStorage<UserXP>("bec-user-xp", DEFAULT_USER_XP);
 
   const onUpload = async (file?: File) => {
     if (!file) return;
+    setUploadError(null);
     setFileName(file.name);
     setLoading(true);
 
@@ -45,9 +47,10 @@ export default function ResumePage() {
 
     let roast;
     try {
-      roast = await generateResumeRoast(file.name);
+      roast = await generateResumeRoast(file);
     } catch (err) {
       console.error("Resume roast API failed:", err);
+      setUploadError(err instanceof Error ? err.message : "We could not analyze this resume.");
       setLoading(false);
       return;
     }
@@ -75,7 +78,7 @@ export default function ResumePage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-foreground">AI Resume Roast</h1>
         <p className="mt-1.5 text-sm text-muted">
-          Let&apos;s see what HR thinks... then fix every weak line.
+          We inspect the actual text in your PDF, then show the clearest fixes first.
         </p>
       </div>
 
@@ -133,12 +136,18 @@ export default function ResumePage() {
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">Upload Resume</p>
-              <p className="mt-0.5 text-xs text-muted">PDF, up to 5MB</p>
+              <p className="mt-0.5 text-xs text-muted">Text-based PDF, up to 5MB. Scanned image PDFs cannot be read.</p>
             </div>
             <input type="file" accept=".pdf" className="hidden" onChange={(e) => onUpload(e.target.files?.[0])} />
           </motion.label>
         )}
       </AnimatePresence>
+
+      {uploadError && (
+        <p role="alert" className="rounded-[10px] border border-danger/30 bg-red-50 px-4 py-3 text-xs text-danger">
+          {uploadError}
+        </p>
+      )}
 
       {/* ── Result Card ── */}
       <AnimatePresence>
@@ -165,6 +174,9 @@ export default function ResumePage() {
               <div className="border-t border-border" />
 
               <p className="text-sm text-foreground italic leading-6">&ldquo;{result.roastLine}&rdquo;</p>
+              {result.analysisSummary && (
+                <p className="text-xs text-muted">{result.analysisSummary}</p>
+              )}
 
               <div className="border-t border-border" />
 

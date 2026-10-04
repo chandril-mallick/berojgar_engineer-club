@@ -30,7 +30,7 @@ export function MemeFeed() {
       const cached = window.localStorage.getItem(MEME_CACHE_KEY);
       if (cached) {
         const userMemes: MemeItem[] = JSON.parse(cached);
-        setMemes([...userMemes, ...MEMES_DATA]);
+        queueMicrotask(() => setMemes([...userMemes, ...MEMES_DATA]));
       }
     } catch (e) {
       console.error("Failed to load cached user memes", e);
@@ -300,7 +300,7 @@ export function MemeFeed() {
                   <label className="text-[10px] font-semibold uppercase text-muted">Category</label>
                   <select
                     value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value as any)}
+                    onChange={(e) => setNewCategory(e.target.value as typeof newCategory)}
                     className="w-full h-9 rounded-[8px] border border-border px-3 text-xs outline-none focus:border-foreground/40 mt-1"
                   >
                     {CATEGORIES.filter((c) => c !== "All").map((cat) => (

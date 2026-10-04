@@ -6,6 +6,21 @@ import { checkRateLimit, getClientIP } from "@/lib/rate-limiter";
 // 2. Public CE endpoint (free, rate-limited - dev/demo fallback)
 const JUDGE0_RAPIDAPI_HOST = "judge0-ce.p.rapidapi.com";
 
+interface Judge0Response {
+  stdout?: string | null;
+  stderr?: string | null;
+  compile_output?: string | null;
+  message?: string | null;
+  exit_code?: number | null;
+  time?: string | number | null;
+  memory?: number | null;
+  status?: { id: number; description: string };
+}
+
+function isJudge0Response(value: unknown): value is Judge0Response {
+  return typeof value === "object" && value !== null;
+}
+
 async function executeOnJudge0(
   source_code: string,
   language_id: number,
@@ -32,7 +47,7 @@ export async function POST(req: Request) {
   try {
     // ── Rate Limit: 20 code executions per IP per minute ────────────────
     const ip = getClientIP(req);
-    const rateLimit = checkRateLimit(`code-exec:${ip}`, { limit: 20, windowMs: 60_000 });
+    const rateLimit = await checkRateLimit(`code-exec:${ip}`, { limit: 20, windowMs: 60_000 });
     if (!rateLimit.success) {
       const retryAfterSec = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
       return NextResponse.json(
@@ -68,7 +83,7 @@ export async function POST(req: Request) {
 
     const rapidApiKey = process.env.JUDGE0_RAPIDAPI_KEY;
 
-    let result: any = null;
+    let result: Judge0Response | null = null;
     let usedEndpoint = "";
 
     // 1. Try RapidAPI Judge0 (paid, reliable) if key is configured
@@ -86,7 +101,9 @@ export async function POST(req: Request) {
         );
 
         if (res.ok) {
-          result = await res.json();
+          const payload: unknown = await res.json();
+          if (!isJudge0Response(payload)) throw new Error("Malformed Judge0 response");
+          result = payload;
           usedEndpoint = "rapidapi-judge0";
         } else {
           const errText = await res.text();
@@ -109,7 +126,9 @@ export async function POST(req: Request) {
         );
 
         if (res.ok) {
-          result = await res.json();
+          const payload: unknown = await res.json();
+          if (!isJudge0Response(payload)) throw new Error("Malformed Judge0 response");
+          result = payload;
           usedEndpoint = "judge0-ce-public";
         } else {
           const errText = await res.text();
@@ -119,7 +138,7 @@ export async function POST(req: Request) {
             { status: 503 }
           );
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Judge0 public CE fallback error:", err);
         return NextResponse.json(
           { error: "Code execution service timed out. Please try again." },
@@ -139,7 +158,7 @@ export async function POST(req: Request) {
       status: result.status,
       _endpoint: usedEndpoint,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Code execution API route error:", error);
     return NextResponse.json(
       { error: "Internal server error during code execution." },

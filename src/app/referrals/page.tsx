@@ -1,8 +1,8 @@
 import { ReferralMarketplace } from "@/components/community/referral-marketplace";
 
 export const metadata = {
-  title: "Referral Marketplace | BEROJGAR ENGINEER CLUB",
-  description: "Connect with verified working professionals at Google, Microsoft, Amazon, Atlassian, and request employee referrals.",
+  title: "Join the Referral Queue | BEROJGAR ENGINEER CLUB",
+  description: "Submit your details once — we'll match you with a real engineer as our referrer network grows.",
 };
 
 export default function ReferralsPage() {

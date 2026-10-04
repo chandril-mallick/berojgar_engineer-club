@@ -33,16 +33,16 @@ export async function calculateBerojgarScore(
 }
 
 /**
- * Generate a resume roast for a given file name.
- * Calls /api/resume-roast (proxy → FastAPI → TS fallback).
+ * Generate a resume roast from text extracted from an uploaded PDF.
  */
 export async function generateResumeRoast(
-  fileName: string
+  file: File
 ): Promise<ResumeRoastResult> {
+  const formData = new FormData();
+  formData.append("resume", file);
   const res = await fetch("/api/resume-roast", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ file_name: fileName }),
+    body: formData,
   });
 
   if (!res.ok) {

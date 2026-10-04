@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { SharePanel } from "@/components/shared/share-panel";
 import { BerojgariCertificate } from "@/components/shared/berojgari-certificate";
-import { ScoreResult, UserXP } from "@/types";
+import { AssessmentInput, ScoreResult, UserXP } from "@/types";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { DEFAULT_USER_XP, awardXP } from "@/lib/xp";
 import { checkNewAchievements, getBadgeById } from "@/lib/achievements";
@@ -52,7 +52,7 @@ function ScoreTicker({ score }: { score: number }) {
 export default function ScorePage() {
   const { user } = useAuth();
   const [result] = useLocalStorage<ScoreResult>("bec-score-result", defaultResult);
-  const [inputData] = useLocalStorage<any>("bec-assessment-input", null);
+  const [inputData] = useLocalStorage<Partial<AssessmentInput> | null>("bec-assessment-input", null);
 
   const [userXP, setUserXP] = useLocalStorage<UserXP>("bec-user-xp", DEFAULT_USER_XP);
   const [newBadges, setNewBadges] = useState<string[]>([]);
@@ -73,7 +73,7 @@ export default function ScorePage() {
         earnedBadgeIds: [...new Set([...updated.earnedBadgeIds, ...unlocked])],
       };
       setUserXP(finalXP);
-      setNewBadges(unlocked);
+      queueMicrotask(() => setNewBadges(unlocked));
       window.localStorage.setItem("bec-assessment-xp-awarded", "1");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,7 +261,7 @@ export default function ScorePage() {
               Do this: Practice 5 technical questions every day for 7 days.
             </p>
             <div className="pt-2">
-              <Link href="/challenges">
+              <Link href="/daily-challenge">
                 <Button variant="dark" size="sm" className="gap-1.5 text-xs font-bold h-9 px-4">
                   <span>START</span>
                   <ArrowRight size={13} />
@@ -282,7 +282,7 @@ export default function ScorePage() {
               Do this: Polish and deploy your strongest project with a clear README.
             </p>
             <div className="pt-2">
-              <Link href="/task-vault">
+              <Link href="/roadmap">
                 <Button variant="dark" size="sm" className="gap-1.5 text-xs font-bold h-9 px-4">
                   <span>FIX GITHUB</span>
                   <ArrowRight size={13} />
@@ -367,7 +367,7 @@ export default function ScorePage() {
                 <p className="text-xs text-muted font-mono mt-0.5">45 min/day · Arrays, strings, trees</p>
               </div>
             </div>
-            <Link href="/challenges">
+            <Link href="/daily-challenge">
               <Button variant="ghost" size="sm" className="border border-border text-xs font-bold w-full sm:w-auto h-9">
                 START →
               </Button>
@@ -399,7 +399,7 @@ export default function ScorePage() {
                 <p className="text-xs text-muted font-mono mt-0.5">Record one mock introduction every day for 7 days</p>
               </div>
             </div>
-            <Link href="/challenges">
+            <Link href="/daily-challenge">
               <Button variant="ghost" size="sm" className="border border-border text-xs font-bold w-full sm:w-auto h-9">
                 START →
               </Button>
@@ -415,7 +415,7 @@ export default function ScorePage() {
                 <p className="text-xs text-muted font-mono mt-0.5">Rewrite headline + feature strongest project</p>
               </div>
             </div>
-            <Link href="/task-vault">
+            <Link href="/roadmap">
               <Button variant="ghost" size="sm" className="border border-border text-xs font-bold w-full sm:w-auto h-9">
                 START →
               </Button>
@@ -448,7 +448,7 @@ export default function ScorePage() {
           &gt; Don&apos;t just know your gaps. Fix them.
         </p>
         <div className="pt-2">
-          <Link href="/challenges">
+          <Link href="/daily-challenge">
             <Button variant="dark" size="lg" className="w-full sm:w-auto px-8 font-bold uppercase tracking-wider h-12 gap-2">
               <span>START TODAY&apos;S GRIND</span>
               <ArrowRight size={16} />

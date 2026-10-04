@@ -1,164 +1,292 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { REAL_WORLD_DSA_CHALLENGES } from "@/lib/real-world-dsa-data";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { 
-  Terminal, 
   CheckCircle2, 
   ArrowRight, 
   Cpu, 
   Code2, 
-  Layers, 
-  Zap, 
+  Search, 
+  Filter, 
   Flame, 
-  BookOpen 
+  Building2,
+  Sparkles,
+  Trophy,
+  Check,
+  ChevronRight,
+  Layers,
+  Zap,
+  BookOpen
 } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
-export default function RealWorldDSAPage() {
-  const [completedSlugs, setCompletedSlugs] = useLocalStorage<string[]>(
-    "bec-rwdsa-completed",
-    []
-  );
+export default function RealWorldDSAProblemsetPage() {
+  const [completedSlugs] = useLocalStorage<string[]>("bec-rwdsa-completed", []);
 
-  const totalChallenges = REAL_WORLD_DSA_CHALLENGES.length;
+  // Filter & Search states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("All");
+  const [selectedStatus, setSelectedStatus] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+
+  const totalCount = REAL_WORLD_DSA_CHALLENGES.length;
   const completedCount = completedSlugs.length;
-  const remainingCount = totalChallenges - completedCount;
+
+  const easyCount = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Easy").length;
+  const easySolved = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Easy" && completedSlugs.includes(c.slug)).length;
+
+  const mediumCount = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Medium").length;
+  const mediumSolved = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Medium" && completedSlugs.includes(c.slug)).length;
+
+  const hardCount = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Hard").length;
+  const hardSolved = REAL_WORLD_DSA_CHALLENGES.filter(c => c.difficulty === "Hard" && completedSlugs.includes(c.slug)).length;
+
+  // Filtered Challenges
+  const filteredChallenges = useMemo(() => {
+    return REAL_WORLD_DSA_CHALLENGES.filter((c) => {
+      const matchesSearch =
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.dsaConcept.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.realWorldContext.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesDiff = selectedDifficulty === "All" || c.difficulty === selectedDifficulty;
+      
+      const isSolved = completedSlugs.includes(c.slug);
+      const matchesStatus =
+        selectedStatus === "All" ||
+        (selectedStatus === "Solved" && isSolved) ||
+        (selectedStatus === "Todo" && !isSolved);
+
+      const matchesCat = selectedCategory === "All" || c.category === selectedCategory;
+
+      return matchesSearch && matchesDiff && matchesStatus && matchesCat;
+    });
+  }, [searchQuery, selectedDifficulty, selectedStatus, selectedCategory, completedSlugs]);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(REAL_WORLD_DSA_CHALLENGES.map(c => c.category)));
+    return ["All", ...cats];
+  }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* ── Top Header & Hero ── */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 font-sans">
+      
+      {/* ── 1. Top LeetCode Banner Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Badge variant="warning" className="flex items-center gap-1">
-              <Cpu size={12} className="text-amber-600" />
-              <span>Real-World Engineering Lab</span>
-            </Badge>
-            <span className="text-xs text-muted font-mono font-semibold">MVP Edition</span>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              BEC Real-World Lab
+            </span>
+            <span className="text-xs text-muted font-mono">Industry Engineering Scenarios</span>
           </div>
           <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-            Real-World DSA Lab
+            Real-World DSA Problem Set
           </h1>
           <p className="text-sm text-muted max-w-2xl leading-relaxed">
-            Stop solving isolated array problems. Learn Data Structures &amp; Algorithms by building real engineering systems used at Swiggy, Google Maps, 1mg, and Amazon.
+            Practice Data Structures &amp; Algorithms by solving real engineering systems used at Swiggy, Google Maps, 1mg, Razorpay, and Amazon.
           </p>
         </div>
 
-        {/* ── Progress Counter Badge Box ── */}
-        <div className="shrink-0 bg-surface border border-border rounded-2xl p-4 flex items-center gap-6 shadow-xs">
+        {/* ── LeetCode Progress Ring Card ── */}
+        <div className="shrink-0 bg-surface border border-border rounded-2xl p-5 flex items-center gap-6 shadow-xs">
+          {/* Progress Circle Stats */}
           <div className="text-center">
-            <p className="text-xs text-muted font-semibold uppercase tracking-wider">Total</p>
-            <p className="text-2xl font-bold text-foreground font-mono">{totalChallenges}</p>
+            <div className="text-3xl font-bold text-foreground font-mono">
+              {completedCount} <span className="text-sm text-muted font-normal">/ {totalCount}</span>
+            </div>
+            <div className="text-[11px] font-mono text-emerald-600 font-bold uppercase tracking-wider mt-1">
+              Solved ({totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%)
+            </div>
           </div>
-          <div className="h-8 w-px bg-border" />
-          <div className="text-center">
-            <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Completed</p>
-            <p className="text-2xl font-bold text-emerald-600 font-mono">{completedCount}</p>
-          </div>
-          <div className="h-8 w-px bg-border" />
-          <div className="text-center">
-            <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider">Remaining</p>
-            <p className="text-2xl font-bold text-amber-600 font-mono">{remainingCount}</p>
+
+          <div className="h-10 w-px bg-border" />
+
+          {/* Easy / Medium / Hard Progress breakdown */}
+          <div className="space-y-1.5 font-mono text-xs min-w-[140px]">
+            <div className="flex justify-between items-center">
+              <span className="text-[#00b8a3] font-bold">Easy</span>
+              <span className="text-foreground">{easySolved} / {easyCount}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[#ffc01e] font-bold">Medium</span>
+              <span className="text-foreground">{mediumSolved} / {mediumCount}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[#ff375f] font-bold">Hard</span>
+              <span className="text-foreground">{hardSolved} / {hardCount}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Core Learning Loop Infographic Banner ── */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
-            <Zap size={20} />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-foreground">The Real-World Learning Loop</h3>
-            <p className="text-xs text-muted">Real Scenario → Understand Problem → Identify DSA → Code &amp; Test → Learn Real Utility</p>
-          </div>
+      {/* ── 2. Search & Filter Bar ── */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-surface p-4 rounded-2xl border border-border">
+        
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search problem title, concept, or company (e.g. Swiggy, Heap, BFS)..."
+            className="w-full bg-white border border-border pl-10 pr-4 py-2 rounded-xl text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-foreground/60 font-sans"
+          />
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono text-amber-700 bg-amber-100/80 px-3 py-1.5 rounded-lg border border-amber-200">
-          <Flame size={14} className="text-amber-500 fill-amber-500" />
-          <span>+100 XP per solved scenario</span>
+
+        {/* Filters Group */}
+        <div className="flex items-center gap-2 overflow-x-auto font-mono text-xs shrink-0">
+          
+          {/* Difficulty Dropdown */}
+          <select
+            value={selectedDifficulty}
+            onChange={(e) => setSelectedDifficulty(e.target.value)}
+            className="bg-white border border-border text-foreground px-3 py-2 rounded-xl text-xs font-semibold focus:outline-none"
+          >
+            <option value="All">Difficulty: All</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+
+          {/* Status Dropdown */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="bg-white border border-border text-foreground px-3 py-2 rounded-xl text-xs font-semibold focus:outline-none"
+          >
+            <option value="All">Status: All</option>
+            <option value="Solved">Solved</option>
+            <option value="Todo">Todo</option>
+          </select>
+
+          {/* Category Dropdown */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="bg-white border border-border text-foreground px-3 py-2 rounded-xl text-xs font-semibold focus:outline-none"
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat === "All" ? "Category: All" : cat}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* ── Scenario Cards Grid ── */}
-      <div className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-foreground flex items-center gap-2">
-          <Layers size={18} className="text-brand" />
-          <span>Engineering Scenarios ({totalChallenges})</span>
-        </h2>
+      {/* ── 3. LeetCode Problem Set Table ── */}
+      <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface/80 border-b border-border text-[11px] font-mono font-bold text-muted uppercase tracking-wider">
+                <th className="py-3.5 px-4 w-12 text-center">Status</th>
+                <th className="py-3.5 px-4">Title &amp; Scenario</th>
+                <th className="py-3.5 px-4">Category</th>
+                <th className="py-3.5 px-4">DSA Concept</th>
+                <th className="py-3.5 px-4">Difficulty</th>
+                <th className="py-3.5 px-4 text-center">XP</th>
+                <th className="py-3.5 px-4 text-right">Action</th>
+              </tr>
+            </thead>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {REAL_WORLD_DSA_CHALLENGES.map((challenge, idx) => {
-            const isCompleted = completedSlugs.includes(challenge.slug);
+            <tbody className="divide-y divide-border text-xs">
+              {filteredChallenges.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-12 text-muted font-mono">
+                    No matching problems found. Try clearing your search query or filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredChallenges.map((challenge, idx) => {
+                  const isSolved = completedSlugs.includes(challenge.slug);
 
-            return (
-              <motion.div
-                key={challenge.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05, duration: 0.3 }}
-                className="group relative flex flex-col justify-between rounded-2xl border border-border bg-white p-6 shadow-xs hover:shadow-md transition-all hover:border-foreground/30"
-              >
-                <div className="space-y-4">
-                  {/* Card Top Header */}
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-surface border border-border text-muted">
-                      {challenge.category}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={
-                          challenge.difficulty === "Easy"
-                            ? "success"
-                            : challenge.difficulty === "Medium"
-                            ? "warning"
-                            : "danger"
-                        }
-                      >
-                        {challenge.difficulty}
-                      </Badge>
-                      {isCompleted && (
-                        <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                          <CheckCircle2 size={12} />
-                          <span>Solved</span>
+                  return (
+                    <tr
+                      key={challenge.id}
+                      className="hover:bg-surface/60 transition-colors group"
+                    >
+                      {/* Solved Status Checkmark */}
+                      <td className="py-4 px-4 text-center">
+                        {isSolved ? (
+                          <CheckCircle2 size={16} className="text-[#00b8a3] mx-auto fill-[#00b8a3]/10" />
+                        ) : (
+                          <span className="inline-block w-4 h-4 rounded-full border border-border mx-auto" />
+                        )}
+                      </td>
+
+                      {/* Problem Title & Short Description */}
+                      <td className="py-4 px-4">
+                        <Link
+                          href={`/real-world-dsa/${challenge.slug}`}
+                          className="font-bold text-foreground hover:text-[#00b8a3] transition-colors text-sm font-heading flex items-center gap-2"
+                        >
+                          <span>{idx + 1}. {challenge.title}</span>
+                        </Link>
+                        <p className="text-xs text-muted mt-0.5 line-clamp-1">
+                          {challenge.shortDescription}
+                        </p>
+                      </td>
+
+                      {/* Category */}
+                      <td className="py-4 px-4 font-mono text-[#8a8a8a]">
+                        <span className="px-2 py-1 rounded-md bg-surface border border-border">
+                          {challenge.category}
                         </span>
-                      )}
-                    </div>
-                  </div>
+                      </td>
 
-                  {/* Title & Short Description */}
-                  <div>
-                    <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-brand transition-colors">
-                      {challenge.title}
-                    </h3>
-                    <p className="text-xs text-muted mt-2 leading-relaxed line-clamp-3">
-                      {challenge.shortDescription}
-                    </p>
-                  </div>
-                </div>
+                      {/* DSA Concept */}
+                      <td className="py-4 px-4 font-mono font-semibold text-foreground">
+                        {challenge.dsaConcept}
+                      </td>
 
-                {/* Footer Meta & Action */}
-                <div className="pt-6 mt-6 border-t border-border/60 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground bg-surface px-2.5 py-1 rounded-lg border border-border">
-                    <Code2 size={13} className="text-brand" />
-                    <span>{challenge.dsaConcept}</span>
-                  </div>
+                      {/* Difficulty Badge */}
+                      <td className="py-4 px-4 font-mono font-bold">
+                        <span
+                          className={`px-2.5 py-0.5 rounded text-[11px] ${
+                            challenge.difficulty === "Easy"
+                              ? "bg-[#00b8a3]/10 text-[#00b8a3]"
+                              : challenge.difficulty === "Medium"
+                              ? "bg-[#ffc01e]/10 text-[#ffc01e]"
+                              : "bg-[#ff375f]/10 text-[#ff375f]"
+                          }`}
+                        >
+                          {challenge.difficulty}
+                        </span>
+                      </td>
 
-                  <Link href={`/real-world-dsa/${challenge.slug}`}>
-                    <Button size="sm" variant={isCompleted ? "ghost" : "primary"} className="gap-1.5 text-xs">
-                      <span>{isCompleted ? "Review" : "Solve Lab"}</span>
-                      <ArrowRight size={13} />
-                    </Button>
-                  </Link>
-                </div>
-              </motion.div>
-            );
-          })}
+                      {/* XP Reward */}
+                      <td className="py-4 px-4 text-center font-mono font-bold text-amber-600">
+                        +100
+                      </td>
+
+                      {/* Action Button */}
+                      <td className="py-4 px-4 text-right">
+                        <Link href={`/real-world-dsa/${challenge.slug}`}>
+                          <button
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all inline-flex items-center gap-1 ${
+                              isSolved
+                                ? "bg-surface hover:bg-border text-foreground border border-border"
+                                : "bg-foreground text-white hover:bg-foreground/85 shadow-xs"
+                            }`}
+                          >
+                            <span>{isSolved ? "Review" : "Solve"}</span>
+                            <ArrowRight size={12} />
+                          </button>
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

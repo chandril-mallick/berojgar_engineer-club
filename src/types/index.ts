@@ -53,6 +53,8 @@ export interface ResumeRoastResult {
   atsScore: number;
   roastLine: string;
   improvements: string[];
+  analysisSummary?: string;
+  analyzedWords?: number;
 }
 
 export interface BadgeDefinition {
@@ -62,6 +64,8 @@ export interface BadgeDefinition {
   emoji: string;
   xpReward: number;
   rarity: BadgeRarity;
+  perk?: string;
+  category?: string;
 }
 
 export interface XPHistoryItem {

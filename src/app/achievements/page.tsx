@@ -45,7 +45,7 @@ const QUEST_LINKS: Record<string, { href: string; label: string }> = {
   challenge_complete: { href: "/daily-challenge", label: "Solve Challenge" },
   github_connect: { href: "/profile", label: "Connect GitHub" },
   linkedin_connect: { href: "/profile", label: "Connect LinkedIn" },
-  mock_interview: { href: "/ai-coach", label: "Start Mock SDE Drill" },
+  mock_interview: { href: "/daily-challenge", label: "Start Mock SDE Drill" },
   referral: { href: "/referrals", label: "Refer Friends" },
   resume_improved: { href: "/resume", label: "Re-Score ATS Resume" },
 };
